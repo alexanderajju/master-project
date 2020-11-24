@@ -1,0 +1,226 @@
+<header class="header user">
+    <div class="container">
+        <nav class="nav">
+            <a href="/" class="logo">
+                <img src="images/logo.png" alt="" />
+            </a>
+            <div class="hamburger-menu">
+                <i class="fas fa-bars"></i>
+                <i class="fas fa-times"></i>
+            </div>
+            <ul class="nav-list ">
+                <li class="nav-item">
+                    <a href="/" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">About</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">Offers</a>
+                </li>
+                {{#if user}}
+                <li class="nav-item">
+                    <a href="#" class="nav-link">{{user.username}}</a>
+                </li>
+                {{else}}
+                <li class="nav-item">
+
+                </li>
+                {{/if}}
+                {{#if user}}
+                <li class="nav-item">
+                    <a href="/logout" class="nav-link">Logout</a>
+                </li>
+                {{else}}
+
+                <li class="nav-item">
+                    <a href="/login" class="nav-link">Login</a>
+                </li>
+
+                {{/if}}
+
+
+            </ul>
+        </nav>
+    </div>
+</header>
+
+<main>
+    <div class="hero">
+        <div class="container">
+            <div class="main-heading">
+                <h1 class="Discover title">Discover</h1>
+                <h2 class="subtitle">Luxury hotels</h2>
+            </div>
+            <a href="#booking" class="btn btn-gradient">Explore now
+                <span class="dots"><i class="fas fa-ellipsis-h"></i></span></a>
+        </div>
+    </div>
+
+    <section id="booking" class="booking">
+        <div class="container">
+            <form action="/search" method="POST" class="book-form">
+                <div class="input-group">
+                    <label for="destination" class="input-label">Destination</label>
+                    <select name="Destination" id="Destination" class="options">
+                        <option value="">select</option>
+                        {{#each destination}}
+                        <option value="{{this.Destination}}">{{this.Destination}}</option>
+                        {{/each}}
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="check-in" class="input-label">Check in</label>
+                    <input type="date" class="input" id="check-in" />
+                </div>
+                <div class="input-group">
+                    <label for="check-out" class="input-label">Check out</label>
+                    <input type="date" class="input" id="check-out" />
+                </div>
+                <div class="input-group">
+                    <label for="adults" class="input-label">Adults</label>
+                    <select name="" id="adults" class="options">
+                        <option value="0">0</option>
+                        <option value="0">1</option>
+                        <option value="0">2</option>
+                        <option value="0">3</option>
+                        <option value="0">4</option>
+                        <option value="0">5</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label for="children" class="input-label">Children</label>
+                    <select name="" id="children" class="options">
+                        <option value="0">0</option>
+                        <option value="0">1</option>
+                        <option value="0">2</option>
+                        <option value="0">3</option>
+                        <option value="0">4</option>
+                        <option value="0">5</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn form-btn btn-purple">
+                    Search
+                    <span class="dots"><i class="fas fa-ellipsis-h"></i></span>
+                </button>
+            </form>
+        </div>
+    </section>
+
+
+    <section class="hotels">
+        <div class="container">
+            <h5 class="section-head">
+                <span class="heading">Explore</span>
+                <span class="sub-heading">Our Beatutiful Hotel</span>
+            </h5>
+
+
+
+
+            <div class="grid">
+
+                {{#each destination}}
+                <div class="grid-item featured-hotels">
+                    <img src="Destination/{{this._id}}.jpg" alt="" class="hotel-image" />
+                    <h5 class="destination-name">{{this.Destination}}</h5>
+                    <a href="/destination?place={{this.Destination}}&id={{this._id}}"
+                        onclick="destinationPlace('{{this._id}}')" class="btn btn-gradient">Book Now
+                        <span class="dots"><i class="fas fa-ellipsis-h"></i></span>
+                    </a>
+                </div>
+                {{/each}}
+
+
+
+
+
+            </div>
+        </div>
+        </div>
+    </section>
+
+
+    <section class="contact">
+        <div class="container">
+            <h5 class="section-head">
+                <span class="heading">Contact</span>
+                <span class="sub-heading">Get in Touch With us</span>
+            </h5>
+            <div class="contact-content">
+                <div class="traveler-wrap">
+                    <img src="images/traveler.png" alt="" />
+                </div>
+                <form action="" class="form contact-form">
+                    <div class="input-group-wrap">
+                        <div class="input-group">
+                            <input type="text" placeholder="Name" class="input" />
+                            <span class="bar"></span>
+                        </div>
+
+                        <div class="input-group">
+                            <input type="email" placeholder="E-mail" class="input" />
+                            <span class="bar"></span>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <input type="email" placeholder="Subject" class="input" />
+                        <span class="bar"></span>
+                    </div>
+                    <div class="input-group">
+                        <textarea cols="30" rows="8" placeholder="Type...." class="input"></textarea>
+                        <span class="bar"></span>
+                    </div>
+                    <button class="btn form-btn btn-purple" type="submit">
+                        Send Message
+                        <span class="dots"><i class="fas fa-ellipsis-h"></i></span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+</main>
+<footer class="footer">
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-content-brand">
+                <a href="#" class="logo">
+                    <img src="images/logo.png" class="logo-image" alt="" />
+                </a>
+                <p class="paragraph">
+                    What is Lorem Ipsum Lorem Ipsum is simply dummy text of the
+                    printing and typesetting industry Lorem Ipsum has been the
+                    industry's standard dummy text ever since the 1500s when an
+                </p>
+            </div>
+            <div class="social-media-wrap">
+                <h4 class="footer-heading">Follow us</h4>
+                <div class="social-media">
+                    <a href="#" class="sm-link"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="sm-link"><i class="fab fa-facebook-square"></i></a>
+                    <a href="#" class="sm-link"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="sm-link"><i class="fab fa-pinterest"></i></a>
+                    <a href="#" class="sm-link"><i class="fab fa-tripadvisor"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>
+    function destinationPlace(data) {
+        $.ajax({
+            url: '/' + data,
+            method: 'get',
+            success: (response) => {
+                if (response.status) {
+                    alert("hai")
+                }
+            }
+
+        })
+    }
+
+</script>

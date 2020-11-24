@@ -1,0 +1,49 @@
+<div class="hero">
+    <div class="container">
+        <section class="contact">
+            <div class="container">
+                <h5 class="section-head">
+                    <span class="heading destination">Add Destination</span>
+
+                </h5>
+                <div class="contact-content">
+
+                    <form action="/admin/Adddestination" method="POST" enctype="multipart/form-data"
+                        class="form contact-form destination-add">
+
+                        <div class="input-group">
+                            <input type="text" id="Destination" name="Destination" placeholder="Destination"
+                                class="input" />
+                            <span class="bar"></span>
+                        </div>
+                        <div class="input-group">
+
+                            <input type="file" id="image" name="image" placeholder="Add image" class="input"
+                                onchange="viewImage(event)" />
+                            <span class="bar"></span>
+                        </div>
+                        <button class="btn form-btn btn-purple" type="submit">
+                            Add Destination
+                            <span class="dots"><i class="fas fa-ellipsis-h"></i></span>
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+        </section>
+
+    </div>
+</div>
+
+
+<script>
+    function viewImage(event) {
+        document.getElementById('image-view').src = URL.createObjectURL(event.target.files[0])
+    }
+</script>
+
+<style>
+    body {
+        overflow-y: hidden;
+    }
+</style>

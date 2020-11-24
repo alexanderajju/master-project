@@ -1,0 +1,39 @@
+<section class="rooms">
+    <div class="container">
+        <h5 class="section-head">
+            <span class="heading">Luxurious</span>
+            <span class="sub-heading">Affordable rooms</span>
+        </h5>
+
+        <div class="grid">
+
+            {{#each hotels}}
+            <div class="grid-item featured-hotels">
+                <img src="/Hotels/{{this._id}}.jpg" alt="" class="hotel-image" />
+                <h5 class="hotel-name">{{this.username}}</h5>
+
+                <span class="hotel-price">$ 200 per nights</span>
+                <div class="hotel-rating">
+                    <i class="fas fa-star rating"></i>
+                    <i class="fas fa-star rating"></i>
+                    <i class="fas fa-star rating"></i>
+                    <i class="fas fa-star rating"></i>
+                    <i class="fas fa-star-half rating"></i>
+                </div>
+                <a href="#" class="btn btn-gradient">Book Now
+                    <span class="dots"><i class="fas fa-ellipsis-h"></i></span>
+                </a>
+            </div>
+
+            {{/each}}
+
+
+
+
+
+
+
+        </div>
+
+    </div>
+</section>

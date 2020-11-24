@@ -1,0 +1,57 @@
+<section class="hotels">
+    <div class="container">
+        <h5 class="section-head">
+            <span class="heading">{{place}}</span>
+            <span class="sub-heading">Our Beatutiful Hotel</span>
+            <a href="/admin/addHotel" class="btn btn-gradient"
+                style="position: absolute; z-index: 1; right: 10rem;top: 13rem;cursor: pointer;">add hotel
+            </a>
+        </h5>
+        <div class="grid">
+            {{#each hotel}}
+            <div class="grid-item featured-hotels">
+                <img src="/Hotels/{{this._id}}.jpg" alt="" class="hotel-image" />
+                <h5 class="hotel-name">{{this.username}}</h5>
+                <h5 class="hotel-name">{{this.Destination}}</h5>
+                <span class="hotel-price">$ 200 per nights</span>
+                <div class="hotel-rating">
+                    <i class="fas fa-star rating"></i>
+                    <i class="fas fa-star rating"></i>
+                    <i class="fas fa-star rating"></i>
+                    <i class="fas fa-star rating"></i>
+                    <i class="fas fa-star-half rating"></i>
+                </div>
+                <a href="#" class="btn btn-gradient">Book Now
+                    <span class="dots"><i class="fas fa-ellipsis-h"></i></span>
+                </a>
+            </div>
+            {{/each}}
+
+
+
+        </div>
+    </div>
+</section>
+<script>
+
+    function addhotel(id) {
+
+        console.log(id)
+        $.ajax({
+            url: "/admin/addhotel",
+            data: {
+                id
+            },
+            method: 'post',
+            success: (response) => {
+                if (response.status) {
+                    location.href = "/"
+                } else {
+                    alert(">>>>>>")
+                }
+            }
+
+
+        })
+    }
+</script>

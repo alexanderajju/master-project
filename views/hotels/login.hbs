@@ -1,0 +1,114 @@
+<section>
+    <form class="box" action="/hotel/login" method='post' autocomplete="off">
+
+        <h1>LOGIN</h1>
+        {{#if loginErr}}
+        <p class="error">{{loginErr}}</p>
+        {{/if}}
+        <input type="text" name="username" placeholder="User Name"><br>
+        <input type="password" name="password" placeholder="Password"><br>
+        <input type="submit" value="login">
+
+    </form>
+</section>
+
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: sans-serif;
+        background: #34495e;
+    }
+
+    .error {
+        color: white;
+        display: flex;
+        position: absolute;
+        text-align: center;
+        justify-content: center;
+        right: 0;
+        z-index: 1000;
+        bottom: 738px;
+        left: 0;
+
+    }
+
+    .box {
+        width: 300px;
+        padding: 400px;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: #191919;
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+        align-items: center;
+
+    }
+
+    .box input[type="text"] {
+        border: 0;
+        background: none;
+        display: block;
+        margin: 20px;
+        text-align: center;
+        border: 2px solid#14298d;
+        padding: 14px 10px;
+        width: 200px;
+        outline: none;
+        color: white;
+        border-radius: 24px;
+        transition: 0.25s;
+    }
+
+    .box input[type="password"] {
+        border: 0;
+        background: none;
+        display: block;
+        margin: 20px;
+        text-align: center;
+        border: 2px solid#14298d;
+        padding: 14px 10px;
+        width: 200px;
+        outline: none;
+        color: white;
+        border-radius: 24px;
+        transition: 0.25s;
+
+
+
+    }
+
+    .box input[type="text"]:focus,
+    .box input[type="password"]:focus {
+        width: 280px;
+        border-color: #2ecc71;
+    }
+
+    .box input[type="submit"] {
+        border: 0;
+        background: none;
+        display: block;
+        margin: 20px;
+        text-align: center;
+        border: 2px solid#14298d;
+        padding: 14px 10px;
+        width: 150px;
+        outline: none;
+        color: white;
+        border-radius: 24px;
+        transition: 0.25s;
+        cursor: pointer;
+    }
+
+    .box input[type="submit"]:hover {
+        background: #2ecc71;
+    }
+
+    h1 {
+        font-weight: 500;
+        color: white;
+    }
+</style>

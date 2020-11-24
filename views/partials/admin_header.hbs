@@ -1,0 +1,35 @@
+<header class="header admin">
+    <div class="container">
+        <nav class="nav">
+            <a href="/" class="logo">
+                <img src="/images/logo.png" alt="" />
+            </a>
+            <div class="hamburger-menu">
+                <i class="fas fa-bars"></i>
+                <i class="fas fa-times"></i>
+            </div>
+            <ul class="nav-list admin-nav">
+                <li class="nav-item">
+                    <a href="/admin" class="nav-link">admin</a>
+                </li>
+                <li class="nav-item">
+                    <a href="/admin/destinations" class="nav-link">Destinations</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">Offers</a>
+                </li>
+                {{#if admin}}
+                <li class="nav-item">
+                    <a href="admin/logout" class="nav-link">Logout</a>
+                </li>
+                {{else}}
+
+                <li class="nav-item">
+                    <a href="admin/login" class="nav-link">Login</a>
+                </li>
+
+                {{/if}}
+            </ul>
+        </nav>
+    </div>
+</header>

@@ -1,0 +1,62 @@
+<div class="hero">
+    <div class="container">
+        <section class="contact">
+            <div class="container">
+                <h5 class="section-head">
+                    <span class="heading destination">Add Hotel</span>
+
+                </h5>
+                <div class="contact-content">
+                    <div class="traveler-wrap">
+                        <img id="image-view" src="" alt="" />
+                    </div>
+                    <form action="/hotel/signup" method="POST" enctype="multipart/form-data"
+                        class="form contact-form destination-add">
+                        <div class="input-group">
+                            <input type="text" id="username" name="username" placeholder="Hotel Name" class="input" />
+                            <span class="bar"></span>
+                        </div>
+                        <div class="input-group">
+                            <input type="password" id="password" name="password" placeholder="password" class="input" />
+                            <span class="bar"></span>
+                        </div>
+                        <div class="input-group">
+                            <select name="Destination" id="Destination" class="options">
+                                <option value="">select</option>
+                                {{#each destination}}
+                                <option value="{{this.Destination}}">{{this.Destination}}</option>
+                                {{/each}}
+                            </select>
+                        </div>
+
+
+                        <div class="input-group">
+                            <input type="file" id="image" name="image" placeholder="Add Hotel's image" class="input "
+                                onchange="viewImage(event)" />
+                            <span class="bar"></span>
+                        </div>
+                        <button class="btn form-btn btn-purple" type="submit">
+                            Add Destination
+                            <span class="dots"><i class="fas fa-ellipsis-h"></i></span>
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+        </section>
+
+    </div>
+</div>
+
+
+<script>
+    function viewImage(event) {
+        document.getElementById('image-view').src = URL.createObjectURL(event.target.files[0])
+    }
+</script>
+
+<style>
+    body {
+        overflow-y: hidden;
+    }
+</style>

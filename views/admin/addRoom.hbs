@@ -1,0 +1,55 @@
+</section>
+<section class="hotels">
+    <div class="container">
+        <h5 class="section-head">
+            <span class="heading">Explore</span>
+            <span class="sub-heading">Our Beatutiful Hotel</span>
+        </h5>
+
+
+
+        <div class="grid">
+
+            <div class="grid-item  ">
+                <form action="/admin/addRoom" method="POST" enctype="multipart/form-data" class="form contact-form">
+                    <div class="input-group-wrap">
+                        <div class="input-group">
+                            <input type="text" name="Name" placeholder="Name" class="input" />
+                            <span class="bar"></span>
+                        </div>
+
+                        <div class="input-group">
+                            <input type="number" name="Price" id="Price" placeholder="Price" name="Price" id="Price"
+                                class="input" />
+                            <span class="bar"></span>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <textarea cols="30" rows="8" id="Description" name="Description" placeholder="Type...."
+                            class="input"></textarea>
+                        <span class="bar"></span>
+                    </div>
+                    <div class="input-group">
+                        <input type="file" id="image" name="image" placeholder="Add Room's image" class="input "
+                            onchange="viewImage(event)" />
+                        <span class="bar"></span>
+                    </div>
+
+                    <button class="btn form-btn btn-purple" type="submit">
+                        Send Message
+                        <span class="dots"><i class="fas fa-ellipsis-h"></i></span>
+                    </button>
+                </form>
+            </div>
+
+
+
+
+
+        </div>
+
+
+
+
+    </div>
+</section>
