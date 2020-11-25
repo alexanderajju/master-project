@@ -7,7 +7,9 @@ const {
   addRoom,
   hotelsignup,
   viewHotel,
+  deleteHotel,
 } = require("../helper/hotel_helpers");
+let fs = require("fs");
 
 var router = express.Router();
 
@@ -23,7 +25,6 @@ const verifyAdmin = (req, res, next) => {
 router.get("/", async (req, res, next) => {
   let admin = req.session.admin;
   let userCount = await getusers();
-  console.log(userCount);
   viewHotel().then((response) => {
     let hotelcount = Object.keys(response).length;
 
@@ -60,7 +61,6 @@ router.get("/Adddestination", (req, res) => {
   res.render("admin/addDestination", { admin: true });
 });
 router.post("/Adddestination", (req, res) => {
-  console.log(req.body);
   addDestination(req.body).then((id) => {
     let image = req.files.image;
     image.mv("./public/Destination/" + id + ".jpg", (err, done) => {
@@ -74,25 +74,21 @@ router.post("/Adddestination", (req, res) => {
 });
 router.get("/destinations", async (req, res) => {
   await getDestination().then((destination) => {
-    console.log(destination);
     res.render("admin/Destinations", { destination, admin: true });
   });
 });
 router.get("/destination", (req, res) => {
   let place = req.query.place;
   let id = req.query.id;
-  console.log(id);
   res.render("admin/viewhotels", { admin: true, place, id });
 });
 router.get("/addhotel", async (req, res) => {
   await getDestination().then((destination) => {
-    console.log("destinations>>>>>>>>>>>>>>>>>>>>>>>>>>", destination);
     res.render("admin/addHotel", { admin: true, destination });
   });
 });
 router.post("/addhotel", (req, res) => {
   hotelsignup(req.body).then((response) => {
-    console.log(response);
     if (response.status) {
       req.session.user = response;
       req.session.loggedIn = true;
@@ -125,8 +121,22 @@ router.post("/addRoom", (req, res) => {
 });
 router.get("/hotels", (req, res) => {
   viewHotel().then((hotel) => {
-    console.log(hotel);
     res.render("admin/viewhotels", { hotel });
+  });
+});
+router.post("/deletehotel", (req, res) => {
+  deleteHotel(req.body.id, req.body.Destination).then((response) => {
+    console.log(">>>>>>>>>>>>>>>>>>>>>>>>", response);
+    if (response.status) {
+      fs.unlink("./public/Hotels/" + req.body.id + ".jpg", (err, done) => {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log("deleted");
+          res.json({ status: true });
+        }
+      });
+    }
   });
 });
 module.exports = router;

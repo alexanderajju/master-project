@@ -7,12 +7,12 @@ const db = require("../config/connection");
 const Promise = require("promise");
 const ObjectId = require("mongodb").ObjectId;
 const bcrypt = require("bcrypt");
-const { resolve, reject } = require("promise");
+const { resolve } = require("promise");
+const { response } = require("express");
 
 module.exports = {
   hotelsignup: (data) => {
     return new Promise(async (resolve, reject) => {
-      console.log(data);
       let response = {};
       let details = [];
       details = [...details, data.Destination];
@@ -24,16 +24,17 @@ module.exports = {
         .collection(hotelCollection)
         .insertOne(data)
         .then((doc) => {
+          console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>", doc);
           response.username = doc.ops[0].username;
           response._id = doc.ops[0]._id;
           response.status = true;
           db.get()
             .collection(destinationCollection)
             .updateOne(
-              { Destination: "Banglore" },
+              { Destination: data.Destination },
               {
                 $push: {
-                  hotels: doc.ops[0]._id,
+                  hotels: response._id.toString(),
                 },
               }
             );
@@ -135,11 +136,33 @@ module.exports = {
           { $match: { destination: destination } },
           {
             $unwind: "$hotels",
-          },
-         
+          }
         )
         .toArray();
       resolve(hotels);
+    });
+  },
+  deleteHotel: (id, Destination) => {
+    return new Promise(async (resolve, reject) => {
+    
+      let response = [];
+      db.get()
+        .collection(hotelCollection)
+        .removeOne({ _id: ObjectId(id) });
+      response.status = true;
+      await db
+        .get()
+        .collection(destinationCollection)
+        .updateOne(
+          { Destination: Destination },
+          {
+            $pull: {
+              hotels: { $in: [id.toString()] },
+            },
+          },
+          { multi: true }
+        );
+      resolve(response);
     });
   },
 };

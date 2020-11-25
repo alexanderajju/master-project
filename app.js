@@ -10,6 +10,7 @@ var HotelRouter = require("./routes/hotels");
 const db = require("./config/connection");
 const session = require("express-session");
 const fileUpload = require("express-fileupload");
+const back = require("express-back");
 
 var app = express();
 
@@ -41,6 +42,9 @@ app.use(
     saveUninitialized: true,
   })
 );
+
+app.use(back());
+
 db.connect((err) => {
   if (err) {
     console.log("Error Occured" + err);

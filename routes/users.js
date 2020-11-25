@@ -1,19 +1,32 @@
 var express = require("express");
 const { getDestination } = require("../helper/destination_helper");
-const { sortingHotel } = require("../helper/hotel_helpers");
+const { sortingHotel, removearray } = require("../helper/hotel_helpers");
 const { doSignUp, doLogin } = require("../helper/user_helpers");
 var router = express.Router();
+
+const verifyuser = (req, res, next) => {
+  if (req.session.user) {
+    next();
+  } else {
+    res.redirect("/login");
+  }
+};
 
 /* GET users listing. */
 router.get("/", async (req, res, next) => {
   let user = req.session.user;
+  console.log(user);
   await getDestination().then((destination) => {
     res.render("user/home", { user, destination });
   });
 });
+router.get("/profile", verifyuser, (req, res) => {
+  let user = req.session.user;
+  res.render("user/profile", { user });
+});
 router.get("/login", (req, res) => {
   if (req.session.user) {
-    res.redirect("/");
+    return res.back(req.session);
   } else {
     res.render("user/login", { loginErr: req.session.userLoginErr });
     req.session.userLoginErr = null;
@@ -22,9 +35,9 @@ router.get("/login", (req, res) => {
 router.post("/login", (req, res) => {
   doLogin(req.body).then((response) => {
     if (response.status) {
-      req.session.user = response.user;
+      req.session.user = response.username;
       req.session.loggedIn = true;
-      res.redirect("/");
+      return res.back(req.session);
     } else {
       req.session.userLoginErr = "Invalid Username or password";
       res.redirect("/login");
@@ -63,4 +76,5 @@ router.post("/search", async (req, res) => {
   let hotels = await sortingHotel(req.body.Destination);
   res.render("hotels/rooms", { destinations, hotels });
 });
+
 module.exports = router;

@@ -8,6 +8,7 @@ module.exports = {
     let response = {};
     return new Promise(async (resolve, reject) => {
       data.password = await bcrypt.hash(data.password, 10);
+      data.customer = true;
       db.get()
         .collection(userCollection)
         .insertOne(data)
@@ -78,10 +79,20 @@ module.exports = {
   },
   getusers: () => {
     return new Promise(async (resolve, reject) => {
-      let users = await db.get().collection(userCollection).find().toArray();
-      if (users) {
-        count = Object.keys(users).length;
-        resolve(count);
+      let test = await db
+        .get()
+        .collection(userCollection)
+        .aggregate([
+          {
+            $match: { customer: true },
+          },
+        ])
+        .toArray();
+      if (test) {
+        resolve(Object.keys(test).length);
+        console.log(Object.keys(test).length);
+      } else {
+        resolve(0);
       }
     });
   },

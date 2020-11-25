@@ -7,9 +7,15 @@
                 style="position: absolute; z-index: 1; right: 10rem;top: 13rem;cursor: pointer;">add hotel
             </a>
         </h5>
+
         <div class="grid">
             {{#each hotel}}
             <div class="grid-item featured-hotels">
+
+                <a onclick="deletehotel('{{this._id}}','{{this.Destination}}')" class="sm-link delete"><i
+                        class="fas fa-trash-alt"></i></a>
+
+
                 <img src="/Hotels/{{this._id}}.jpg" alt="" class="hotel-image" />
                 <h5 class="hotel-name">{{this.username}}</h5>
                 <h5 class="hotel-name">{{this.Destination}}</h5>
@@ -32,15 +38,26 @@
         </div>
     </div>
 </section>
+<style>
+    .delete {
+        position: absolute;
+        top: 8px;
+        right: 16px;
+
+
+    }
+</style>
 <script>
 
-    function addhotel(id) {
+    function deletehotel(id, Destination) {
 
-        console.log(id)
+        console.log(Destination)
+        if (!confirm('Are you sure?')) return false;
         $.ajax({
-            url: "/admin/addhotel",
+            url: "/admin/deletehotel",
             data: {
-                id
+                id: id,
+                Destination: Destination
             },
             method: 'post',
             success: (response) => {
