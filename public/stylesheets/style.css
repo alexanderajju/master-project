@@ -38,6 +38,21 @@ body {
   font-size: 1.6rem;
   color: var(--dark-color);
 }
+::placeholder {
+  /* Chrome, Firefox, Opera, Safari 10.1+ */
+  color: rgb(0, 0, 0);
+  opacity: 1; /* Firefox */
+}
+
+:-ms-input-placeholder {
+  /* Internet Explorer 10-11 */
+  color: rgb(0, 0, 0);
+}
+
+::-ms-input-placeholder {
+  /* Microsoft Edge */
+  color: rgb(0, 0, 0);
+}
 
 a {
   text-decoration: none;
@@ -282,7 +297,7 @@ section {
   min-width: 4rem;
   padding: 1rem;
   font-weight: bold;
-  color: #a5a5a5;
+  color: #000000;
   letter-spacing: 2px;
   font-family: "Open Sans", sans-serif;
   resize: none;
@@ -584,7 +599,6 @@ section {
   .footer {
     overflow-x: hidden;
     bottom: 0;
-  
   }
   .footer-content {
     display: flex;
