@@ -31,7 +31,6 @@ header {
   height: 250px;
   border-top-left-radius: 12px;
   border-top-right-radius: 12px;
-  
 }
 
 @media (max-width: 800px) {
@@ -71,9 +70,9 @@ main {
   height: 20px;
   border-radius: 20px;
   position: absolute;
-  right: calc(50% - 70px);
-  top: 75px;
-  background-color: #ffc107;
+  right: calc(50% - 69px);
+  top: 49px;
+  background-color: #07ff37;
   border: 3px solid #fff;
 }
 
@@ -210,6 +209,10 @@ main {
     display: none;
   }
   .profile-grid {
+    margin-left: 0;
+
+    align-items: center;
+    justify-content: center;
     grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
     grid-gap: 2rem;
   }

@@ -1,6 +1,10 @@
 var express = require("express");
 const { addDestination } = require("../helper/destination_helper");
-const { doAdminLogIn, getusers } = require("../helper/user_helpers");
+const {
+  doAdminLogIn,
+  getusers,
+  deleteUser,
+} = require("../helper/user_helpers");
 const { getDestination } = require("../helper/destination_helper");
 const {
   addHotel,
@@ -22,20 +26,24 @@ const verifyAdmin = (req, res, next) => {
 };
 
 /* GET home page. */
-router.get("/", async (req, res, next) => {
+router.get("/", verifyAdmin, async (req, res, next) => {
   let admin = req.session.admin;
   let userCount = await getusers();
   viewHotel().then((response) => {
     let hotelcount = Object.keys(response).length;
 
-    res.render("admin/adminHome", { admin: true, hotelcount, userCount });
+    res.render("admin/adminHome", {
+      admin: true,
+      hotelcount,
+      userCount: Object.keys(userCount).length,
+    });
   });
 });
 router.get("/login", (req, res) => {
   if (req.session.admin) {
     res.redirect("/");
   } else {
-    res.render("admin/login", { loginErr: req.session.userLoginErr });
+    res.render("login/adminlogin", { loginErr: req.session.userLoginErr });
     req.session.userLoginErr = null;
   }
 });
@@ -88,16 +96,14 @@ router.get("/addhotel", async (req, res) => {
   });
 });
 router.post("/addhotel", (req, res) => {
-  hotelsignup(req.body).then((response) => {
-    if (response.status) {
-      req.session.user = response;
-      req.session.loggedIn = true;
+  hotelsignup(req.body).then((id) => {
+    if (id) {
       let image = req.files.image;
-      image.mv("./public/Hotels/" + response._id + ".jpg", (err, done) => {
+      image.mv("./public/Hotels/" + id + ".jpg", (err, done) => {
         if (err) {
           console.log(err);
         } else {
-          res.redirect("/hotel");
+          res.redirect("/admin");
         }
       });
     }
@@ -126,17 +132,24 @@ router.get("/hotels", (req, res) => {
 });
 router.post("/deletehotel", (req, res) => {
   deleteHotel(req.body.id, req.body.Destination).then((response) => {
-    console.log(">>>>>>>>>>>>>>>>>>>>>>>>", response);
     if (response.status) {
       fs.unlink("./public/Hotels/" + req.body.id + ".jpg", (err, done) => {
         if (err) {
           console.log(err);
         } else {
-          console.log("deleted");
           res.json({ status: true });
         }
       });
     }
+  });
+});
+router.get("/customers", async (req, res) => {
+  let userCount = await getusers();
+  res.render("admin/customers", { userCount, admin: true });
+});
+router.post("/deleteuser", async (req, res) => {
+  await deleteUser(req.body.id).then((response) => {
+    res.json({ status: true });
   });
 });
 module.exports = router;

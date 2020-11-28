@@ -4,7 +4,7 @@ const state = {
   db: null,
 };
 
-module.exports.connect = function (done) {
+module.exports.connect =  (done)=> {
   const url = "mongodb://localhost:27017";
   const dbname = "hotel";
 

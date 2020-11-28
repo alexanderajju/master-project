@@ -1,18 +1,30 @@
 var express = require("express");
 var router = express.Router();
 const { getDestination } = require("../helper/destination_helper");
-const { hotelLogin, sortingHotel } = require("../helper/hotel_helpers");
+const {
+  hotelLogin,
+  addRoom,
+  hoteldestination,
+  getRoom,
+} = require("../helper/hotel_helpers");
+
+const verifyuser = (req, res, next) => {
+  if (req.session.hotel) {
+    next();
+  } else {
+    res.redirect("/hotel/login");
+  }
+};
 
 /* GET home page. */
-router.get("/", async (req, res, next) => {
+router.get("/", verifyuser, async (req, res, next) => {
   let hotel = req.session.user;
-  res.render("hotels/Home", { hotel });
-  await getDestination().then((destination) => {
-    console.log("destinations>>>>>>>>>>>>>>>>>>>>>>>>>>", destination);
-  });
+  let rooms = await getRoom(req.session.hotel);
+  console.log(rooms);
+  res.render("hotels/Home", { hotel, rooms });
 });
 router.get("/login", (req, res) => {
-  if (req.session.user) {
+  if (req.session.hotel) {
     res.redirect("/");
   } else {
     res.render("hotels/login", { loginErr: req.session.userLoginErr });
@@ -22,8 +34,8 @@ router.get("/login", (req, res) => {
 router.post("/login", (req, res) => {
   hotelLogin(req.body).then((response) => {
     if (response.status) {
-      req.session.user = response.user;
       req.session.hotel = response.user;
+      req.session.user = response.user;
       req.session.loggedIn = true;
       res.redirect("/hotel");
     } else {
@@ -33,11 +45,21 @@ router.post("/login", (req, res) => {
   });
 });
 
-router.post("/adddestination", (req, res) => {
-  console.log(req.body);
-  addHotel(req.body, req.session.user).then((id) => {
+router.get("/logout", (req, res) => {
+  req.session.user = null;
+  req.session.hotel = null;
+  res.redirect("/");
+});
+router.get("/addroom", async (req, res) => {
+  let destination = await hoteldestination(req.session.hotel);
+
+  res.render("hotels/addroom", { destination });
+});
+router.post("/addroom", (req, res) => {
+  console.log(req.body, req.session.hotel._id);
+  addRoom(req.body, req.session.hotel).then((id) => {
     let image = req.files.image;
-    image.mv("./public/Hotels/" + id + ".jpg", (err, done) => {
+    image.mv("./public/Rooms/" + id + ".jpg", (err, done) => {
       if (err) {
         console.log(err);
       } else {
@@ -45,10 +67,6 @@ router.post("/adddestination", (req, res) => {
       }
     });
   });
-});
-router.get("/logout", (req, res) => {
-  req.session.user = null;
-  res.redirect("/");
 });
 
 module.exports = router;

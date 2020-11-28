@@ -2,7 +2,7 @@
     <div class="container">
         <nav class="nav">
             <a href="/" class="logo">
-                <img src="images/logo.png" alt="" />
+                <img src="/images/logo.png" alt="" />
             </a>
             <div class="hamburger-menu">
                 <i class="fas fa-bars"></i>
@@ -125,8 +125,7 @@
                 <div class="grid-item featured-hotels">
                     <img src="Destination/{{this._id}}.jpg" alt="" class="hotel-image" />
                     <h5 class="destination-name">{{this.Destination}}</h5>
-                    <a href="/destination?place={{this.Destination}}&id={{this._id}}"
-                        onclick="destinationPlace('{{this._id}}')" class="btn btn-gradient">Book Now
+                    <a href="/destination?place={{this.Destination}}&id={{this._id}}" class="btn btn-gradient">Book Now
                         <span class="dots"><i class="fas fa-ellipsis-h"></i></span>
                     </a>
                 </div>
@@ -210,19 +209,3 @@
         </div>
     </div>
 </footer>
-
-<script>
-    function destinationPlace(data) {
-        $.ajax({
-            url: '/' + data,
-            method: 'get',
-            success: (response) => {
-                if (response.status) {
-                    alert("hai")
-                }
-            }
-
-        })
-    }
-
-</script>

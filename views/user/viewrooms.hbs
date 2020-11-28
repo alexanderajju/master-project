@@ -1,0 +1,81 @@
+<section class="rooms">
+    <div class="container">
+        <h5 class="section-head">
+            <span class="heading">Luxurious</span>
+            <span class="sub-heading">Affordable rooms</span>
+        </h5>
+
+        <div class="grid rooms-grid">
+
+
+            {{#if hotels}}
+
+            <div>
+                <h1>No rooms currently available</h1>
+            </div>
+
+            {{/if}}
+
+
+
+            {{#each rooms}}
+
+
+
+            <div class="grid-item featured-rooms">
+                <div class="image-wrap">
+                    <img class="room-image" src="/Rooms/{{this._id}}.jpg" alt="" />
+                    <h5 class="room-name"> room {{this.roomnumber}}</h5>
+                </div>
+                <div class="room-info-wrap">
+                    <span class="room-price">${{this.price}} <span class="per-night">Per Night</span>
+                    </span>
+                    <p class="paragraph">
+                        {{this.description}}
+                    </p>
+                    <a href="#" class="btn rooms-btn">Book now &rarr;</a>
+                </div>
+            </div>
+
+
+
+
+
+            {{/each}}
+
+
+
+
+
+
+        </div>
+    </div>
+</section>
+<footer class="footer">
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-content-brand">
+                <a href="#" class="logo">
+                    <img src="images/logo.png" class="logo-image" alt="" />
+                </a>
+                <p class="paragraph">
+                    What is Lorem Ipsum Lorem Ipsum is simply dummy text of the
+                    printing and typesetting industry Lorem Ipsum has been the
+                    industry's standard dummy text ever since the 1500s when an
+                </p>
+            </div>
+            <div class="social-media-wrap">
+                <h4 class="footer-heading">Follow us</h4>
+                <div class="social-media">
+                    <a href="#" class="sm-link"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="sm-link"><i class="fab fa-facebook-square"></i></a>
+                    <a href="#" class="sm-link"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="sm-link"><i class="fab fa-pinterest"></i></a>
+                    <a href="#" class="sm-link"><i class="fab fa-tripadvisor"></i></a>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>

@@ -3,21 +3,59 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Responsive Photography App</title>
-
-
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+    <script src="https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.js"></script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.css" rel="stylesheet" />
     <link rel='stylesheet prefetch'
         href='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-beta/css/bootstrap.min.css'>
     <link rel='stylesheet prefetch'
         href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'>
     <link rel='stylesheet prefetch' href='https://fonts.googleapis.com/css?family=Montserrat:300,400,500,600'>
 
+
+
     <link rel="stylesheet" href="/stylesheets/abc.css">
 
+    <style>
+        #map {
+            height: 500px;
+            width: 100%;
+        }
 
+        .mapboxgl-ctrl-geocoder input[type='text'] {
+
+            padding: 0 !important;
+            text-align: center !important;
+
+
+        }
+
+        .mapbox-directions-component-keyline {
+            box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 0.1) !important;
+
+        }
+    </style>
 </head>
 
 <body>
+    <link rel="stylesheet"
+        href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.1.0/mapbox-gl-directions.css"
+        type="text/css" />
+    <link rel="stylesheet"
+        href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.5.1/mapbox-gl-geocoder.css"
+        type="text/css" />
+    <script
+        src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.1.0/mapbox-gl-directions.js"></script>
+
+    <script
+        src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.5.1/mapbox-gl-geocoder.min.js"></script>
+
+    <!-- Promise polyfill script required to use Mapbox GL Geocoder in IE 11 -->
+    <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.min.js"></script>
+
+
+
     <div class="container">
         <header>
             <nav class="nav">
@@ -65,7 +103,7 @@
                             src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTJm0gAXunXcm3HezBOW5XyULCkkdCxQ95_XA&usqp=CAU" />
                         <div class="active"></div>
                     </div>
-                    <h4 class="name">Jane Doe</h4>
+                    <h4 class="name">{{user.username}}</h4>
                     <p class="info">UI/UX Designer</p>
                     <p class="info">jane.doe@gmail.com</p>
                     <div class="stats row">
@@ -82,7 +120,7 @@
                             <p class="desc-stat">Uploads</p>
                         </div>
                     </div>
-                    <p class="desc">Hi ! My name is Jane Doe. I'm a UI/UX Designer from Paris, in France. I really enjoy
+                    <p class="desc">Hi ! {{user.username}}. I'm a UI/UX Designer from Paris, in France. I really enjoy
                         photography and moutains.</p>
                     <div class="social">
                         <i class="fa fa-facebook-square" aria-hidden="true"></i>
@@ -91,39 +129,54 @@
                         <i class="fa fa-tumblr-square" aria-hidden="true"></i>
                     </div>
                 </div>
-                <div class="right col-lg-8">
-                    <ul class="navprofile">
-                        <li>Gallery</li>
-                        <li>Collections</li>
-                        <li>Groups</li>
-                        <li>About</li>
-                    </ul>
-                    <span class="follow">Follow</span>
-                    <div class="profile-grid">
-                    
-                        <div class="col-md-4">
-                            <img
-                                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTXCr-xqCkDM868wIaaXoNUqybadrmekWGkBw&usqp=CAU" />
-                        </div>
-                        <div class="col-md-4">
-                            <img
-                                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSSeUShUe5UySS49MYJ-nwY13lNlMoPxlHNZg&usqp=CAU" />
-                        </div>
-                        <div class="col-md-4">
-                            <img
-                                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSSeUShUe5UySS49MYJ-nwY13lNlMoPxlHNZg&usqp=CAU" />
-                        </div>
-                        <div class="col-md-4">
-                            <img
-                                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSSeUShUe5UySS49MYJ-nwY13lNlMoPxlHNZg&usqp=CAU" />
-                        </div>
 
-                    </div>
-                </div>
         </main>
+        <div id="map"></div>
     </div>
 
 
+    <script>
+
+        mapboxgl.accessToken =
+            "pk.eyJ1IjoiYWxleGFuZGVyYWpqdSIsImEiOiJja2hldzA0YXkwYW53MnptdjJ0MGEweGs1In0.sERMLZeftUYtDkvOr_BI4Q";
+
+        navigator.geolocation.getCurrentPosition(successLocation, errorLocation, {
+            enableHighAccuracy: true,
+        });
+        function successLocation(position) {
+            console.log(position);
+            setupMap([position.coords.longitude, position.coords.latitude]);
+        }
+        function errorLocation() {
+            setupMap([-0.127758, 51.507351]);
+        }
+
+        function setupMap(center) {
+            const map = new mapboxgl.Map({
+                container: "map",
+                style: "mapbox://styles/mapbox/streets-v11",
+                center: center,
+                zoom: 15,
+            });
+            const geocoder = new MapboxGeocoder({
+                accessToken: mapboxgl.accessToken,
+                mapboxgl: mapboxgl
+            })
+            map.addControl(geocoder, "top-right"
+
+            );
+            const nav = new mapboxgl.NavigationControl();
+            map.addControl(nav);
+
+            var directions = new MapboxDirections({
+                accessToken: mapboxgl.accessToken,
+            });
+
+            map.addControl(directions, "top-left");
+
+        }
+
+    </script>
 </body>
 
 </html>

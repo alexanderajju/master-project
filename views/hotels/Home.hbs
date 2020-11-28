@@ -6,82 +6,39 @@
         </h5>
 
         <div class="grid rooms-grid">
+
+
+
+            {{#each rooms}}
+
+
+
             <div class="grid-item featured-rooms">
                 <div class="image-wrap">
-                    <img class="room-image" src="/images/room_1.jpg" alt="" />
-                    <h5 class="room-name">Astro Hotel</h5>
+                    <img class="room-image" src="/Rooms/{{this._id}}.jpg" alt="" />
+                    <h5 class="room-name"> room {{this.roomnumber}}</h5>
                 </div>
                 <div class="room-info-wrap">
-                    <span class="room-price">$200 <span class="per-night">Per Night</span>
+                    <span class="room-price">${{this.price}} <span class="per-night">Per Night</span>
                     </span>
                     <p class="paragraph">
-                        What is Lorem Ipsum Lorem Ipsum is simply dummy text of the
-                        printing and typesetting industry Lorem Ipsum has been the
-                        industry's standard dummy text ever since the 1500s when an
-                        unknown printer took a galley of type and scrambled it to make
-                        a type specimen book it has?
+                        {{this.description}}
                     </p>
                     <a href="#" class="btn rooms-btn">Book now &rarr;</a>
                 </div>
             </div>
-            <div class="grid-item featured-rooms">
-                <div class="image-wrap">
-                    <img class="room-image" src="/images/room_2.jpg" alt="" />
-                    <h5 class="room-name">Astro Hotel</h5>
-                </div>
-                <div class="room-info-wrap">
-                    <span class="room-price">$200 <span class="per-night">Per Night</span>
-                    </span>
-                    <p class="paragraph">
-                        What is Lorem Ipsum Lorem Ipsum is simply dummy text of the
-                        printing and typesetting industry Lorem Ipsum has been the
-                        industry's standard dummy text ever since the 1500s when an
-                        unknown printer took a galley of type and scrambled it to make
-                        a type specimen book it has?
-                    </p>
-                    <a href="#" class="btn rooms-btn">Book now &rarr;</a>
-                </div>
-            </div>
-            <div class="grid-item featured-rooms">
-                <div class="image-wrap">
-                    <img class="room-image" src="/images/room_3.jpg" alt="" />
-                    <h5 class="room-name">Astro Hotel</h5>
-                </div>
-                <div class="room-info-wrap">
-                    <span class="room-price">$200 <span class="per-night">Per Night</span>
-                    </span>
-                    <p class="paragraph">
-                        What is Lorem Ipsum Lorem Ipsum is simply dummy text of the
-                        printing and typesetting industry Lorem Ipsum has been the
-                        industry's standard dummy text ever since the 1500s when an
-                        unknown printer took a galley of type and scrambled it to make
-                        a type specimen book it has?
-                    </p>
-                    <a href="#" class="btn rooms-btn">Book now &rarr;</a>
-                </div>
-            </div>
-            <div class="grid-item featured-rooms">
-                <div class="image-wrap">
-                    <img class="room-image" src="/images/room_4.jpg" alt="" />
-                    <h5 class="room-name">Astro Hotel</h5>
-                </div>
-                <div class="room-info-wrap">
-                    <span class="room-price">$200 <span class="per-night">Per Night</span>
-                    </span>
-                    <p class="paragraph">
-                        What is Lorem Ipsum Lorem Ipsum is simply dummy text of the
-                        printing and typesetting industry Lorem Ipsum has been the
-                        industry's standard dummy text ever since the 1500s when an
-                        unknown printer took a galley of type and scrambled it to make
-                        a type specimen book it has?
-                    </p>
-                    <a href="#" class="btn rooms-btn">Book now &rarr;</a>
-                </div>
-            </div>
-      
-     
-  
          
+
+
+
+
+            {{/each}}
+
+
+
+
+
+
         </div>
     </div>
 </section>

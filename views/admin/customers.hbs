@@ -1,0 +1,91 @@
+<section>
+    <table>
+
+        <thead>
+            <tr>
+                <th scope="col">Users</th>
+                <th scope="col">Status</th>
+                <th scope="col">Amount</th>
+                <th scope="col">Setting</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each userCount}}
+            <tr>
+                <td>{{this.username}}</td>
+                <td></td>
+                <td></td>
+                <td><a class="buttonclick"><i onclick="deleteuser('{{this._id}}')" class="fas  fa-trash-alt"></i></a>
+                </td>
+            </tr>
+
+            {{/each}}
+
+
+        </tbody>
+    </table>
+</section>
+
+<style>
+    table {
+        border: 1px solid black;
+        border-collapse: collapse;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        table-layout: fixed;
+        color: ivory;
+        border-radius: 10px;
+        margin-top: 8rem;
+    }
+
+    tr:nth-child(even) {
+        background-color: #919191;
+    }
+
+    tr:nth-child(odd) {
+        background-color: #363636;
+    }
+
+    th,
+    td {
+        padding: 15px;
+    }
+
+    table,
+    th,
+    td {
+        border: 1px solid black;
+        border-collapse: collapse;
+        text-align: center;
+    }
+
+    .buttonclick {
+        cursor: pointer;
+    }
+</style>
+<script>
+
+    function deleteuser(id) {
+
+        console.log(id)
+        if (!confirm('Are you sure?')) return false;
+        $.ajax({
+            url: "/admin/deleteuser",
+            data: {
+                id
+
+            },
+            method: 'post',
+            success: (response) => {
+                if (response.status) {
+                    location.href = "/admin"
+                } else {
+                    alert(">>>>>>")
+                }
+            }
+
+
+        })
+    }
+</script>

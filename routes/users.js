@@ -1,7 +1,8 @@
 var express = require("express");
 const { getDestination } = require("../helper/destination_helper");
-const { sortingHotel, removearray } = require("../helper/hotel_helpers");
-const { doSignUp, doLogin } = require("../helper/user_helpers");
+const { sortingHotel } = require("../helper/hotel_helpers");
+const { doSignUp, doLogin, getRoom } = require("../helper/user_helpers");
+
 var router = express.Router();
 
 const verifyuser = (req, res, next) => {
@@ -15,17 +16,27 @@ const verifyuser = (req, res, next) => {
 /* GET users listing. */
 router.get("/", async (req, res, next) => {
   let user = req.session.user;
-  console.log(user);
   await getDestination().then((destination) => {
     res.render("user/home", { user, destination });
   });
 });
 router.get("/profile", verifyuser, (req, res) => {
-  let user = req.session.user;
-  res.render("user/profile", { user });
+  if (req.session.user.customer) {
+    let user = req.session.user;
+    res.render("user/profile", { user });
+  } else if (req.session.user.hotel) {
+    res.redirect("/hotel");
+  } else {
+    res.redirect("/admin");
+  }
 });
 router.get("/login", (req, res) => {
   if (req.session.user) {
+    return res.back(req.session);
+  } else if (req.session.hotel) {
+    console.log(req.session.hotel);
+    return res.back(req.session);
+  } else if (req.session.admin) {
     return res.back(req.session);
   } else {
     res.render("user/login", { loginErr: req.session.userLoginErr });
@@ -68,13 +79,17 @@ router.get("/destination", async (req, res) => {
   let id = req.query.id;
   let hotels = await sortingHotel(place, id);
   console.log(hotels);
-  res.render("hotels/rooms", { hotels });
+  res.render("user/hotels", { hotels });
 });
-router.post("/search", async (req, res) => {
+router.post("/search", verifyuser, async (req, res) => {
   console.log(req.body.Destination);
   let destinations = await getDestination();
   let hotels = await sortingHotel(req.body.Destination);
-  res.render("hotels/rooms", { destinations, hotels });
+  res.render("user/hotels", { destinations, hotels });
 });
-
+router.get("/viewrooms", async (req, res) => {
+  // let rooms = "No rooms currently";
+  let rooms = await getRoom(req.query.id, req.query.hotel);
+  res.render("user/viewrooms", { rooms });
+});
 module.exports = router;

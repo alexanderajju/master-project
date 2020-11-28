@@ -3,30 +3,36 @@
         <section class="contact">
             <div class="container">
                 <h5 class="section-head">
-                    <span class="heading destination">Add Hotel</span>
+                    <span class="heading destination">ADD ROOM</span>
 
                 </h5>
                 <div class="contact-content">
                     <div class="traveler-wrap">
                         <img id="image-view" src="" alt="" />
                     </div>
-                    <form action="/hotel/signup" method="POST" enctype="multipart/form-data"
+                    <form action="/hotel/addroom" method="POST" enctype="multipart/form-data"
                         class="form contact-form destination-add">
                         <div class="input-group">
-                            <input type="text" id="username" name="username" placeholder="Hotel Name" class="input" />
+                            <input type="number" id="roomnumber" name="roomnumber" placeholder="Room Number"
+                                class="input" />
                             <span class="bar"></span>
                         </div>
                         <div class="input-group">
-                            <input type="password" id="password" name="password" placeholder="password" class="input" />
+                            <input type="number" id="price" name="price" placeholder="price" class="input" />
                             <span class="bar"></span>
                         </div>
                         <div class="input-group">
                             <select name="Destination" id="Destination" class="options">
                                 <option value="">select</option>
                                 {{#each destination}}
-                                <option value="{{this.Destination}}">{{this.Destination}}</option>
+                                <option value="{{this.item}}">{{this.item}}</option>
                                 {{/each}}
                             </select>
+                        </div>
+                        <div class="input-group">
+                            <textarea cols="30" rows="8" maxlength="105" name="description" placeholder="Type...."
+                                class="input"></textarea>
+                            <span class="bar"></span>
                         </div>
 
 

@@ -38,7 +38,7 @@ module.exports = {
                 },
               }
             );
-          resolve(response);
+          resolve(doc.ops[0]._id);
         });
     });
   },
@@ -95,30 +95,27 @@ module.exports = {
         });
     });
   },
-  addRoom: (data) => {
-    return new Promise((resolve, reject) => {
-      let room = {
-        name: data.Name,
-        Price: data.Price,
-        description: data.Description,
-      };
-
-      db.get()
-        .collection(roomCollection)
-        .insertOne(room)
-        .then((response) => {
-          db.get()
-            .collection(hotelCollection)
-            .updateOne(
-              { _id: ObjectId("5fbb99354dd828252c6f6399") },
-              {
-                $push: {
-                  rooms: response.ops[0]._id,
-                },
-              }
-            );
-          resolve(response.ops[0]._id);
-        });
+  hoteldestination: (user) => {
+    console.log(
+      ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>",
+      user
+    );
+    return new Promise(async (resolve, reject) => {
+      let hotel = await db
+        .get()
+        .collection(hotelCollection)
+        .aggregate([
+          { $match: { _id: ObjectId(user._id) } },
+          { $unwind: "$destination" },
+          {
+            $project: {
+              _id: 0,
+              item: "$destination",
+            },
+          },
+        ])
+        .toArray();
+      resolve(hotel);
     });
   },
   viewHotel: () => {
@@ -144,7 +141,6 @@ module.exports = {
   },
   deleteHotel: (id, Destination) => {
     return new Promise(async (resolve, reject) => {
-    
       let response = [];
       db.get()
         .collection(hotelCollection)
@@ -163,6 +159,43 @@ module.exports = {
           { multi: true }
         );
       resolve(response);
+    });
+  },
+  addRoom: (data, hotel) => {
+    return new Promise((resolve, reject) => {
+      data.hotel_id = ObjectId(hotel._id);
+      data.hotel = hotel.username;
+      db.get()
+        .collection(roomCollection)
+        .insertOne(data)
+        .then((doc) => {
+          db.get()
+            .collection(hotelCollection)
+            .updateOne(
+              {
+                _id: ObjectId(hotel._id),
+              },
+              {
+                $push: {
+                  rooms: doc.ops[0]._id,
+                },
+              }
+            );
+          resolve(doc.ops[0]._id);
+        });
+    });
+  },
+  getRoom: (user) => {
+    return new Promise(async (resolve, reject) => {
+      console.log(user);
+      let rooms = await db
+        .get()
+        .collection(roomCollection)
+        .aggregate([
+          { $match: { hotel_id: ObjectId(user._id), hotel: "Rajpalace" } },
+        ])
+        .toArray();
+      resolve(rooms);
     });
   },
 };
