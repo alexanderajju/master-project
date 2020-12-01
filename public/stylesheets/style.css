@@ -521,6 +521,7 @@ section {
   padding: 5rem 0;
   background-color: var(--purple-solid);
   color: #fff;
+  margin-top: 18px;
 }
 
 .footer-content-brand {
@@ -620,11 +621,25 @@ section {
     margin-left: 2.5rem;
   }
 }
+@media screen and (max-width: 1000px) {
+  .homephoto {
+    display: none;
+  }
+}
 @media screen and (min-width: 1000px) {
   section:not(.booking) {
     padding: 10rem 0;
   }
-
+  .homephoto {
+    border-radius: 50%;
+    min-height: 50px;
+    object-fit: cover;
+    max-width: 50px;
+    display: flex;
+  }
+  .username {
+    display: none;
+  }
   /* Header */
   .hamburger-menu {
     display: none;
@@ -690,6 +705,7 @@ section {
   .book-form .input-group:first-child {
     flex: 0 0 30%;
   }
+
   .room-image {
     width: 180px;
   }

@@ -1,58 +1,13 @@
-<header class="header user">
-    <div class="container">
-        <nav class="nav">
-            <a href="/" class="logo">
-                <img src="/images/logo.png" alt="" />
-            </a>
-            <div class="hamburger-menu">
-                <i class="fas fa-bars"></i>
-                <i class="fas fa-times"></i>
-            </div>
-            <ul class="nav-list ">
-                <li class="nav-item">
-                    <a href="/" class="nav-link">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link">About</a>
-                </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link">Offers</a>
-                </li>
-                {{#if user}}
-                <li class="nav-item">
-                    <a href="/profile" class="nav-link">{{user.username}}</a>
-                </li>
-                {{else}}
-                <li class="nav-item">
 
-                </li>
-                {{/if}}
-                {{#if user}}
-                <li class="nav-item">
-                    <a href="/logout" class="nav-link">Logout</a>
-                </li>
-                {{else}}
-
-                <li class="nav-item">
-                    <a href="/login" class="nav-link">Login</a>
-                </li>
-
-                {{/if}}
-
-
-            </ul>
-        </nav>
-    </div>
-</header>
 
 <main>
     <div class="hero">
         <div class="container">
-            <div class="main-heading">
+            <div class="main-heading" data-aos="fade-up">
                 <h1 class="Discover title">Discover</h1>
                 <h2 class="subtitle">Luxury hotels</h2>
             </div>
-            <a href="#booking" class="btn btn-gradient">Explore now
+            <a href="#booking" class="btn btn-gradient" data-aos="fade-down-left">Explore now
                 <span class="dots"><i class="fas fa-ellipsis-h"></i></span></a>
         </div>
     </div>
@@ -122,8 +77,8 @@
             <div class="grid">
 
                 {{#each destination}}
-                <div class="grid-item featured-hotels">
-                    <img src="Destination/{{this._id}}.jpg" alt="" class="hotel-image" />
+                <div class="grid-item featured-hotels" data-aos="zoom-out">
+                    <img src="HOTEL/{{this._id}}.jpg" alt="" class="hotel-image" />
                     <h5 class="destination-name">{{this.Destination}}</h5>
                     <a href="/destination?place={{this.Destination}}&id={{this._id}}" class="btn btn-gradient">Book Now
                         <span class="dots"><i class="fas fa-ellipsis-h"></i></span>
@@ -143,15 +98,15 @@
 
     <section class="contact">
         <div class="container">
-            <h5 class="section-head">
+            <h5 class="section-head" data-aos="fade-down">
                 <span class="heading">Contact</span>
-                <span class="sub-heading">Get in Touch With us</span>
+                <span class=" sub-heading">Get in Touch With us</span>
             </h5>
             <div class="contact-content">
-                <div class="traveler-wrap">
+                <div class="traveler-wrap" data-aos="fade-right" data-aos-duration="3000">
                     <img src="images/traveler.png" alt="" />
                 </div>
-                <form action="" class="form contact-form">
+                <form action="" class="form contact-form" data-aos="fade-left">
                     <div class="input-group-wrap">
                         <div class="input-group">
                             <input type="text" placeholder="Name" class="input" />
@@ -209,3 +164,15 @@
         </div>
     </div>
 </footer>
+<style>
+    .userheader {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+    }
+
+    .username {
+        margin-right: 10px;
+    }
+</style>

@@ -1,7 +1,12 @@
 var express = require("express");
-const { getDestination } = require("../helper/destination_helper");
+const {
+  getDestination,
+  comparearray,
+} = require("../helper/destination_helper");
 const { sortingHotel } = require("../helper/hotel_helpers");
 const { doSignUp, doLogin, getRoom } = require("../helper/user_helpers");
+var fs = require("fs");
+const { features } = require("process");
 
 var router = express.Router();
 
@@ -17,7 +22,20 @@ const verifyuser = (req, res, next) => {
 router.get("/", async (req, res, next) => {
   let user = req.session.user;
   await getDestination().then((destination) => {
-    res.render("user/home", { user, destination });
+    if (user) {
+      fs.readFile("./public/HOTEL/" + user._id + ".jpg", (err, done) => {
+        console.log(user._id);
+        if (err) {
+          console.log(err, done);
+          res.render("user/home", { user, destination, done });
+        } else {
+          console.log("image found", done);
+          res.render("user/home", { user, destination, done });
+        }
+      });
+    } else {
+      res.render("user/home", { user, destination });
+    }
   });
 });
 router.get("/profile", verifyuser, (req, res) => {
@@ -71,25 +89,84 @@ router.post("/signup", (req, res) => {
   });
 });
 router.get("/logout", (req, res) => {
-  req.session.user = null;
-  res.redirect("/login");
+  if (req.session) {
+    req.session.destroy();
+    res.clearCookie("connect.sid"); // clean up!
+    res.redirect("/");
+  } else {
+    return res.json({ msg: "no user to log out!" });
+  }
 });
 router.get("/destination", async (req, res) => {
-  let place = req.query.place;
-  let id = req.query.id;
-  let hotels = await sortingHotel(place, id);
-  console.log(hotels);
-  res.render("user/hotels", { hotels });
+  let user = req.session.user;
+  let place = "";
+  let id = "";
+  let hotels = "";
+  if (req.query) {
+    place = req.query.place;
+    id = req.query.id;
+    hotels = await sortingHotel(place, id);
+  }
+  if (user) {
+    fs.readFile("./public/HOTEL/" + user._id + ".jpg", (err, done) => {
+      console.log(user._id);
+      if (err) {
+        console.log(err, done);
+        res.render("user/hotels", { user, hotels, done });
+      } else {
+        console.log("image found", done);
+        res.render("user/hotels", { user, hotels, done });
+      }
+    });
+  } else {
+    res.render("user/hotels", { hotels, user });
+  }
 });
 router.post("/search", verifyuser, async (req, res) => {
-  console.log(req.body.Destination);
   let destinations = await getDestination();
-  let hotels = await sortingHotel(req.body.Destination);
+  let hotels = "";
+  if (req.body.Destination) {
+    hotels = await sortingHotel(req.body.Destination);
+  }
+
   res.render("user/hotels", { destinations, hotels });
 });
 router.get("/viewrooms", async (req, res) => {
-  // let rooms = "No rooms currently";
-  let rooms = await getRoom(req.query.id, req.query.hotel);
-  res.render("user/viewrooms", { rooms });
+  let rooms = "";
+  let user = req.session.user;
+  if (req.query.id) {
+    console.log("req", req.query);
+    rooms = await getRoom(req.query.id, req.query.hotel);
+    feature = await comparearray(req.query.id);
+    if (user) {
+      fs.readFile("./public/HOTEL/" + user._id + ".jpg", (err, done) => {
+        if (err) {
+          console.log(err, done);
+          res.render("user/viewrooms", {
+            rooms,
+            feature: feature.hotel,
+            user,
+            done,
+          });
+        } else {
+          res.render("user/viewrooms", {
+            rooms,
+            feature: feature.hotel,
+            user,
+            done,
+          });
+        }
+      });
+    } else {
+      res.render("user/viewrooms", {
+        rooms,
+        feature: feature.hotel,
+        user,
+      });
+    }
+  } else {
+    console.log(rooms);
+    res.render("user/viewrooms", { rooms });
+  }
 });
 module.exports = router;

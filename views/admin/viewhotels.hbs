@@ -14,9 +14,12 @@
 
                 <a onclick="deletehotel('{{this._id}}','{{this.Destination}}')" class="sm-link delete"><i
                         class="fas fa-trash-alt"></i></a>
+                <a href="/admin/edithotel?id={{this._id}}&Destination={{this.Destination}}" class=" sm-link edit"><i
+                        class="fas fa-edit"></i></a>
+             
 
 
-                <img src="/Hotels/{{this._id}}.jpg" alt="" class="hotel-image" />
+                <img src="/Hotel/{{this._id}}.jpg" alt="" class="hotel-image" />
                 <h5 class="hotel-name">{{this.username}}</h5>
                 <h5 class="hotel-name">{{this.Destination}}</h5>
                 <span class="hotel-price">$ 200 per nights</span>
@@ -43,6 +46,16 @@
         position: absolute;
         top: 8px;
         right: 16px;
+        cursor: pointer;
+
+
+    }
+
+    .edit {
+        position: absolute;
+        top: 8px;
+        left: 16px;
+        cursor: pointer;
 
 
     }
@@ -62,7 +75,7 @@
             method: 'post',
             success: (response) => {
                 if (response.status) {
-                    location.href = "/"
+                    location.href = "/admin"
                 } else {
                     alert(">>>>>>")
                 }
@@ -71,4 +84,5 @@
 
         })
     }
+
 </script>

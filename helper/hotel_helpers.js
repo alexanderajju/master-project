@@ -7,7 +7,7 @@ const db = require("../config/connection");
 const Promise = require("promise");
 const ObjectId = require("mongodb").ObjectId;
 const bcrypt = require("bcrypt");
-const { resolve } = require("promise");
+const { resolve, reject } = require("promise");
 const { response } = require("express");
 
 module.exports = {
@@ -96,10 +96,6 @@ module.exports = {
     });
   },
   hoteldestination: (user) => {
-    console.log(
-      ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>",
-      user
-    );
     return new Promise(async (resolve, reject) => {
       let hotel = await db
         .get()
@@ -139,6 +135,54 @@ module.exports = {
       resolve(hotels);
     });
   },
+  getHotel: (id, destination) => {
+    return new Promise((resolve, reject) => {
+      console.log(id, destination);
+    });
+  },
+  editHotel: (id, data) => {
+    return new Promise((resolve, reject) => {
+      let place = [];
+      place.destination = data.destination;
+
+      console.log(place.destination);
+      db.get()
+        .collection(hotelCollection)
+        .updateOne(
+          { _id: ObjectId(id) },
+          {
+            $set: {
+              Name: data.Name,
+              Mobile: data.Mobile,
+              username: data.username,
+              destination: place.destination,
+            },
+          }
+        )
+        .then((response) => {
+          resolve(response);
+        });
+    });
+  },
+  editFeatures: (id, features) => {
+    return new Promise((resolve, reject) => {
+      db.get()
+        .collection(hotelCollection)
+        .updateOne(
+          {
+            _id: ObjectId(id),
+          },
+          {
+            $set: {
+              features: features,
+            },
+          }
+        )
+        .then((response) => {
+          resolve(response);
+        });
+    });
+  },
   deleteHotel: (id, Destination) => {
     return new Promise(async (resolve, reject) => {
       let response = [];
@@ -159,6 +203,21 @@ module.exports = {
           { multi: true }
         );
       resolve(response);
+    });
+  },
+  getHotel: (id, destination) => {
+    return new Promise(async (resolve, reject) => {
+      hotel = await db
+        .get()
+        .collection(hotelCollection)
+        .aggregate([
+          {
+            $match: { _id: ObjectId(id), Destination: destination },
+          },
+        ])
+        .toArray();
+      console.log(hotel);
+      resolve(hotel[0]);
     });
   },
   addRoom: (data, hotel) => {

@@ -1,49 +1,4 @@
-<header class="header user">
-    <div class="container">
-        <nav class="nav">
-            <a href="/" class="logo">
-                <img src="/images/logo.png" alt="" />
-            </a>
-            <div class="hamburger-menu">
-                <i class="fas fa-bars"></i>
-                <i class="fas fa-times"></i>
-            </div>
-            <ul class="nav-list ">
-                <li class="nav-item">
-                    <a href="/" class="nav-link">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link">About</a>
-                </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link">Offers</a>
-                </li>
-                {{#if user}}
-                <li class="nav-item">
-                    <a href="/profile" class="nav-link">{{user.username}}</a>
-                </li>
-                {{else}}
-                <li class="nav-item">
 
-                </li>
-                {{/if}}
-                {{#if user}}
-                <li class="nav-item">
-                    <a href="/logout" class="nav-link">Logout</a>
-                </li>
-                {{else}}
-
-                <li class="nav-item">
-                    <a href="/login" class="nav-link">Login</a>
-                </li>
-
-                {{/if}}
-
-
-            </ul>
-        </nav>
-    </div>
-</header>
 <section class="rooms">
     <div class="container">
         <h5 class="section-head">
@@ -52,10 +7,10 @@
         </h5>
 
         <div class="grid">
-         
+
             {{#each hotels}}
             <div class="grid-item featured-hotels">
-                <img src="/Hotels/{{this._id}}.jpg" alt="" class="hotel-image" />
+                <img src="/HOTEL/{{this._id}}.jpg" alt="" class="hotel-image" />
                 <h5 class="hotel-name">{{this.username}}</h5>
 
                 <span class="hotel-price">$ 200 per nights</span>
@@ -89,7 +44,7 @@
         <div class="footer-content">
             <div class="footer-content-brand">
                 <a href="#" class="logo">
-                    <img src="images/logo.png" class="logo-image" alt="" />
+                    <img src="/images/logo.png" class="logo-image" alt="" />
                 </a>
                 <p class="paragraph">
                     What is Lorem Ipsum Lorem Ipsum is simply dummy text of the

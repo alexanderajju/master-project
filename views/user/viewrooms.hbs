@@ -8,15 +8,7 @@
         <div class="grid rooms-grid">
 
 
-            {{#if hotels}}
-
-            <div>
-                <h1>No rooms currently available</h1>
-            </div>
-
-            {{/if}}
-
-
+            {{#if rooms}}
 
             {{#each rooms}}
 
@@ -24,7 +16,7 @@
 
             <div class="grid-item featured-rooms">
                 <div class="image-wrap">
-                    <img class="room-image" src="/Rooms/{{this._id}}.jpg" alt="" />
+                    <img class="room-image" src="/HOTEL/{{this._id}}.jpg" alt="" />
                     <h5 class="room-name"> room {{this.roomnumber}}</h5>
                 </div>
                 <div class="room-info-wrap">
@@ -42,6 +34,13 @@
 
 
             {{/each}}
+            {{else}}
+            <h1 class="noroom">Currently NO rooms availabe</h1>
+            {{/if}}
+
+
+
+
 
 
 
@@ -56,12 +55,12 @@
         <div class="footer-content">
             <div class="footer-content-brand">
                 <a href="#" class="logo">
-                    <img src="images/logo.png" class="logo-image" alt="" />
+                    <img src="/images/logo.png" class="logo-image" alt="" />
                 </a>
                 <p class="paragraph">
-                    What is Lorem Ipsum Lorem Ipsum is simply dummy text of the
-                    printing and typesetting industry Lorem Ipsum has been the
-                    industry's standard dummy text ever since the 1500s when an
+                    {{#each feature}}
+                    <li>{{this}}</li>
+                    {{/each}}
                 </p>
             </div>
             <div class="social-media-wrap">
@@ -79,3 +78,10 @@
         </div>
     </div>
 </footer>
+<style>
+    h1.noroom {
+        justify-content: center;
+        display: flex;
+        padding: 30px;
+    }
+</style>

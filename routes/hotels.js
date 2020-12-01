@@ -1,11 +1,12 @@
 var express = require("express");
 var router = express.Router();
-const { getDestination } = require("../helper/destination_helper");
+const { comparearray } = require("../helper/destination_helper");
 const {
   hotelLogin,
   addRoom,
   hoteldestination,
   getRoom,
+  editFeatures,
 } = require("../helper/hotel_helpers");
 
 const verifyuser = (req, res, next) => {
@@ -50,16 +51,32 @@ router.get("/logout", (req, res) => {
   req.session.hotel = null;
   res.redirect("/");
 });
+router.get("/editfeatures", verifyuser, async (req, res) => {
+  await comparearray(req.session.hotel._id).then((response) => {
+    console.log(response);
+    res.render("hotels/Hotelfeatures", {
+      features: response.hotel,
+      notfeature: response.val,
+    });
+  });
+});
+
 router.get("/addroom", async (req, res) => {
   let destination = await hoteldestination(req.session.hotel);
 
   res.render("hotels/addroom", { destination });
 });
+router.post("/editfeatures", (req, res) => {
+  console.log(req.body);
+  editFeatures(req.session.hotel._id, req.body.features).then((response) => {
+    res.redirect("/hotel");
+  });
+});
 router.post("/addroom", (req, res) => {
   console.log(req.body, req.session.hotel._id);
   addRoom(req.body, req.session.hotel).then((id) => {
     let image = req.files.image;
-    image.mv("./public/Rooms/" + id + ".jpg", (err, done) => {
+    image.mv("./public/HOTEL/" + id + ".jpg", (err, done) => {
       if (err) {
         console.log(err);
       } else {

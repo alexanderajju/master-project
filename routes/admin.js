@@ -12,8 +12,11 @@ const {
   hotelsignup,
   viewHotel,
   deleteHotel,
+  editHotel,
+  getHotel,
 } = require("../helper/hotel_helpers");
 let fs = require("fs");
+const { request } = require("http");
 
 var router = express.Router();
 
@@ -71,7 +74,7 @@ router.get("/Adddestination", (req, res) => {
 router.post("/Adddestination", (req, res) => {
   addDestination(req.body).then((id) => {
     let image = req.files.image;
-    image.mv("./public/Destination/" + id + ".jpg", (err, done) => {
+    image.mv("./public/HOTEL/" + id + ".jpg", (err, done) => {
       if (err) {
         console.log(err);
       } else {
@@ -99,7 +102,7 @@ router.post("/addhotel", (req, res) => {
   hotelsignup(req.body).then((id) => {
     if (id) {
       let image = req.files.image;
-      image.mv("./public/Hotels/" + id + ".jpg", (err, done) => {
+      image.mv("./public/HOTEL/" + id + ".jpg", (err, done) => {
         if (err) {
           console.log(err);
         } else {
@@ -116,7 +119,7 @@ router.get("/addRoom", (req, res) => {
 router.post("/addRoom", (req, res) => {
   addRoom(req.body).then((id) => {
     let image = req.files.image;
-    image.mv("./public/Rooms/" + id + ".jpg", (err, done) => {
+    image.mv("./public/HOTEL/" + id + ".jpg", (err, done) => {
       if (err) {
         console.log(err);
       } else {
@@ -127,13 +130,14 @@ router.post("/addRoom", (req, res) => {
 });
 router.get("/hotels", (req, res) => {
   viewHotel().then((hotel) => {
-    res.render("admin/viewhotels", { hotel });
+    console.log("view hotel called");
+    res.render("admin/viewhotels", { hotel, admin: true });
   });
 });
 router.post("/deletehotel", (req, res) => {
   deleteHotel(req.body.id, req.body.Destination).then((response) => {
     if (response.status) {
-      fs.unlink("./public/Hotels/" + req.body.id + ".jpg", (err, done) => {
+      fs.unlink("./public/HOTEL/" + req.body.id + ".jpg", (err, done) => {
         if (err) {
           console.log(err);
         } else {
@@ -141,6 +145,24 @@ router.post("/deletehotel", (req, res) => {
         }
       });
     }
+  });
+});
+router.get("/edithotel", async (req, res) => {
+  console.log(req.query.Destination);
+  hotel = await getHotel(req.query.id, req.query.Destination);
+  if (hotel) {
+    console.log(hotel);
+    res.render("admin/edithotel", { hotel });
+  }
+});
+router.post("/edithotel/:id", (req, res) => {
+  editHotel(req.params.id, req.body).then((response) => {
+    res.redirect("/admin/hotels");
+    if (req.files.image) {
+      let id = req.params.id;
+      let image = req.files.image;
+      image.mv("./public/HOTEL/" + id + ".jpg");
+    } 
   });
 });
 router.get("/customers", async (req, res) => {
