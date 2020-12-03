@@ -3,7 +3,7 @@ const {
   getDestination,
   comparearray,
 } = require("../helper/destination_helper");
-const { sortingHotel } = require("../helper/hotel_helpers");
+const { sortingHotel, compareroomarray } = require("../helper/hotel_helpers");
 const { doSignUp, doLogin, getRoom } = require("../helper/user_helpers");
 var fs = require("fs");
 const { features } = require("process");
@@ -102,24 +102,31 @@ router.get("/destination", async (req, res) => {
   let place = "";
   let id = "";
   let hotels = "";
-  if (req.query) {
+  if (req.query.id) {
     place = req.query.place;
     id = req.query.id;
     hotels = await sortingHotel(place, id);
-  }
-  if (user) {
-    fs.readFile("./public/HOTEL/" + user._id + ".jpg", (err, done) => {
-      console.log(user._id);
-      if (err) {
-        console.log(err, done);
-        res.render("user/hotels", { user, hotels, done });
-      } else {
-        console.log("image found", done);
-        res.render("user/hotels", { user, hotels, done });
-      }
-    });
-  } else {
-    res.render("user/hotels", { hotels, user });
+
+    if (user) {
+      fs.readFile("./public/HOTEL/" + user._id + ".jpg", (err, done) => {
+        console.log(user._id);
+        if (err) {
+          place = req.query.place;
+          console.log(place);
+          console.log("page called1");
+          res.render("user/hotels", { user, hotels, done, place });
+        } else {
+          console.log("page called2");
+          place = req.query.place;
+          res.render("user/hotels", { user, hotels, done, place });
+        }
+      });
+    } else {
+      console.log("page called");
+      place = req.query.place;
+      console.log(place);
+      res.render("user/hotels", { hotels, user, place });
+    }
   }
 });
 router.post("/search", verifyuser, async (req, res) => {
@@ -135,7 +142,7 @@ router.get("/viewrooms", async (req, res) => {
   let rooms = "";
   let user = req.session.user;
   if (req.query.id) {
-    console.log("req", req.query);
+    console.log("req>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", req.query.hotel);
     rooms = await getRoom(req.query.id, req.query.hotel);
     feature = await comparearray(req.query.id);
     if (user) {
@@ -166,7 +173,15 @@ router.get("/viewrooms", async (req, res) => {
     }
   } else {
     console.log(rooms);
-    res.render("user/viewrooms", { rooms });
+    let user = req.session.user;
+    res.render("user/viewrooms", { rooms, user });
   }
+});
+router.get("/favico.ico", (req, res) => {
+  res.sendStatus(404);
+});
+
+router.get("/test", (req, res) => {
+  compareroomarray();
 });
 module.exports = router;

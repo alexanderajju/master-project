@@ -134,7 +134,7 @@ module.exports = {
           },
         ])
         .toArray();
-
+      console.log("rooms>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", rooms);
       resolve(rooms);
     });
   },

@@ -625,6 +625,12 @@ section {
   .homephoto {
     display: none;
   }
+  .features {
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+  }
 }
 @media screen and (min-width: 1000px) {
   section:not(.booking) {

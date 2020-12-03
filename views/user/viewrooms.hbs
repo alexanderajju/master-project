@@ -7,7 +7,7 @@
 
         <div class="grid rooms-grid">
 
-
+           
             {{#if rooms}}
 
             {{#each rooms}}
@@ -16,6 +16,8 @@
 
             <div class="grid-item featured-rooms">
                 <div class="image-wrap">
+                    <h5 style="cursor: pointer;" class="bookingroom btn  rooms-btn"> <a
+                            href="#">Book Now &rarr;</a></h5>
                     <img class="room-image" src="/HOTEL/{{this._id}}.jpg" alt="" />
                     <h5 class="room-name"> room {{this.roomnumber}}</h5>
                 </div>
@@ -25,7 +27,14 @@
                     <p class="paragraph">
                         {{this.description}}
                     </p>
-                    <a href="#" class="btn rooms-btn">Book now &rarr;</a>
+                    <div class="features">
+                        {{#each this.features}}
+                        <h5>
+                            {{this}}
+                        </h5>
+                        {{/each}}
+                    </div>
+
                 </div>
             </div>
 
@@ -83,5 +92,12 @@
         justify-content: center;
         display: flex;
         padding: 30px;
+    }
+
+    .bookingroom {
+        color: #fff;
+        position: absolute;
+        right: 0px;
+        z-index: 10;
     }
 </style>

@@ -1,3 +1,4 @@
+const { response } = require("express");
 var express = require("express");
 var router = express.Router();
 const { comparearray } = require("../helper/destination_helper");
@@ -7,6 +8,9 @@ const {
   hoteldestination,
   getRoom,
   editFeatures,
+  compareroomarray,
+  editroom,
+  deleteRoom,
 } = require("../helper/hotel_helpers");
 
 const verifyuser = (req, res, next) => {
@@ -56,7 +60,7 @@ router.get("/editfeatures", verifyuser, async (req, res) => {
     console.log(response);
     res.render("hotels/Hotelfeatures", {
       features: response.hotel,
-      notfeature: response.val,
+      notfeature: response.notfeature,
     });
   });
 });
@@ -65,6 +69,37 @@ router.get("/addroom", async (req, res) => {
   let destination = await hoteldestination(req.session.hotel);
 
   res.render("hotels/addroom", { destination });
+});
+router.get("/editroom/:id", verifyuser, async (req, res) => {
+  console.log(req.params);
+  if (req.params.id) {
+    await compareroomarray(req.params.id).then((response) => {
+      console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>room", response.roomvalue[0]);
+      res.render("hotels/editroomfeatures", {
+        notfeature: response.notfeature,
+        room: response.room,
+        roomvalue: response.roomvalue[0],
+      });
+    });
+  } else {
+    res.render("hotels/editroomfeatures");
+  }
+});
+router.post("/editroom/:id", (req, res) => {
+  console.log(req.params.id);
+  if (req.params.id) {
+    editroom(req.params.id, req.body).then((response) => {
+      res.redirect("/hotel");
+      if (req.files.image) {
+        let id = req.params.id;
+        let image = req.files.image;
+        image.mv("./public/HOTEL/" + id + ".jpg");
+      }
+    });
+  } else {
+    res.redirect("/hotel");
+    alert("error");
+  }
 });
 router.post("/editfeatures", (req, res) => {
   console.log(req.body);
@@ -83,6 +118,21 @@ router.post("/addroom", (req, res) => {
         res.redirect("/hotel");
       }
     });
+  });
+});
+router.post("/deleteroom", (req, res) => {
+  deleteRoom(req.body.id).then((response) => {
+    console.log(response);
+    if (response.status) {
+      fs.unlink("./public/HOTEL/" + req.body.id + ".jpg", (err, done) => {
+        if (err) {
+          console.log(err);
+        } else {
+          res.json({ status: true });
+        }
+        
+      });
+    } 
   });
 });
 

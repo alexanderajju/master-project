@@ -7,8 +7,8 @@ const db = require("../config/connection");
 const Promise = require("promise");
 const ObjectId = require("mongodb").ObjectId;
 const bcrypt = require("bcrypt");
-const { resolve, reject } = require("promise");
-const { response } = require("express");
+var generator = require("generate-password");
+let fs = require("fs");
 
 module.exports = {
   hotelsignup: (data) => {
@@ -16,7 +16,12 @@ module.exports = {
       let response = {};
       let details = [];
       details = [...details, data.Destination];
-      data.password = await bcrypt.hash(data.password, 10);
+      let password = generator.generate({
+        length: 10,
+        numbers: true,
+      });
+      console.log(password);
+      data.password = await bcrypt.hash(password, 10);
       data.hotel = true;
       data.destination = details;
 
@@ -24,7 +29,6 @@ module.exports = {
         .collection(hotelCollection)
         .insertOne(data)
         .then((doc) => {
-          console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>", doc);
           response.username = doc.ops[0].username;
           response._id = doc.ops[0]._id;
           response.status = true;
@@ -38,7 +42,12 @@ module.exports = {
                 },
               }
             );
-          resolve(doc.ops[0]._id);
+          resolve({
+            id: doc.ops[0]._id,
+            password,
+            email: data.email,
+            username: data.username,
+          });
         });
     });
   },
@@ -184,25 +193,65 @@ module.exports = {
     });
   },
   deleteHotel: (id, Destination) => {
+    console.log(id);
     return new Promise(async (resolve, reject) => {
       let response = [];
-      db.get()
-        .collection(hotelCollection)
-        .removeOne({ _id: ObjectId(id) });
-      response.status = true;
-      await db
+
+      let hotel = await db
         .get()
-        .collection(destinationCollection)
-        .updateOne(
-          { Destination: Destination },
+        .collection(hotelCollection)
+        .aggregate([
           {
-            $pull: {
-              hotels: { $in: [id.toString()] },
+            $match: { _id: ObjectId(id) },
+          },
+          {
+            $project: {
+              _id: 0,
+              rooms: 1,
             },
           },
-          { multi: true }
-        );
-      resolve(response);
+        ])
+        .toArray();
+      console.log("hotel>>>>>>>>>>>>>>>>>>>>>>>>>>", hotel);
+
+      if (hotel) {
+        console.log("called");
+        for (let i = 0; i < hotel[0].rooms.length; i++) {
+          let rooms_id = hotel[0].rooms;
+          console.log(rooms_id[i]);
+          fs.unlink("./public/HOTEL/" + rooms_id[i] + ".jpg", (err, done) => {
+            if (err) {
+              console.log("err while deleting");
+              console.log(err);
+            } else {
+              console.log("room image deleted");
+              db.get()
+                .collection(roomCollection)
+                .remove({ hotel_id: ObjectId(id) });
+              console.log("rooms deleted");
+              db.get()
+                .collection(hotelCollection)
+                .removeOne({ _id: ObjectId(id) });
+              response.status = true;
+
+              db.get()
+                .collection(destinationCollection)
+                .updateOne(
+                  { Destination: Destination },
+                  {
+                    $pull: {
+                      hotels: { $in: [id.toString()] },
+                    },
+                  },
+                  { multi: true }
+                );
+              resolve(response);
+            }
+          });
+        }
+      } else {
+        console.log("no room called");
+      }
     });
   },
   getHotel: (id, destination) => {
@@ -246,15 +295,94 @@ module.exports = {
   },
   getRoom: (user) => {
     return new Promise(async (resolve, reject) => {
-      console.log(user);
+      console.log("user>>>>>>>>>>>>>>>>>>>>>>>>>", user._id);
       let rooms = await db
         .get()
         .collection(roomCollection)
         .aggregate([
-          { $match: { hotel_id: ObjectId(user._id), hotel: "Rajpalace" } },
+          { $match: { hotel_id: ObjectId(user._id), hotel: user.username } },
         ])
         .toArray();
       resolve(rooms);
+    });
+  },
+  compareroomarray: (id) => {
+    return new Promise(async (resolve, reject) => {
+      // console.log("id>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", id);
+      if (id) {
+        let room = await db
+          .get()
+          .collection(roomCollection)
+          .aggregate([
+            {
+              $match: { _id: ObjectId(id) },
+            },
+          ])
+          .toArray();
+
+        let features = await db
+          .get()
+          .collection("features")
+          .aggregate([
+            {
+              $match: { _id: ObjectId("5fc63ac1c8c4f0938e6ba523") },
+            },
+          ])
+          .toArray();
+        var roomvalue = room;
+        // hotel = hotel[0].features;
+        features = features[0].roomfeatures;
+        room = room[0].features;
+        // console.log("room>>>>>>>>>>>>>>>>>>>>>>", room);
+        if (room) {
+          const removeCommon = (first, second) => {
+            const spreaded = [...first, ...second];
+            return spreaded.filter((el) => {
+              return !(first.includes(el) && second.includes(el));
+            });
+          };
+          let notfeature = removeCommon(room, features);
+          // console.log(removeCommon(room, features));
+          resolve({ notfeature, room, roomvalue });
+        } else {
+          let notfeature = features;
+          resolve({ notfeature, room, roomvalue });
+        }
+      }
+    });
+  },
+  editroom: (id, body) => {
+    return new Promise((resolve, reject) => {
+      console.log(id, body);
+      db.get()
+        .collection(roomCollection)
+        .updateOne(
+          {
+            _id: ObjectId(id),
+          },
+          {
+            $set: {
+              roomnumber: body.roomnumber,
+              price: body.price,
+              description: body.description,
+              Destination: body.Destination,
+              features: body.features,
+            },
+          }
+        )
+        .then((response) => {
+          resolve(response);
+        });
+    });
+  },
+  deleteRoom: (id) => {
+    return new Promise(async (resolve, reject) => {
+      let response = [];
+      db.get()
+        .collection(roomCollection)
+        .removeOne({ _id: ObjectId(id) });
+      response.status = true;
+      resolve(response);
     });
   },
 };

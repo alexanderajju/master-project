@@ -69,12 +69,8 @@ module.exports = {
         );
         // hotel = hotel[0].features;
         features = features[0].features;
-        console.log(
-          "second>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>",
-          hotel
-        );
+        hotel = hotel[0].features;
         if (hotel) {
-          hotel = hotel[0].features;
           const removeCommon = (first, second) => {
             const spreaded = [...first, ...second];
             return spreaded.filter((el) => {

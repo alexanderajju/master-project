@@ -1,4 +1,3 @@
-
 <section class="rooms">
     <div class="container">
         <h5 class="section-head">
@@ -7,8 +6,8 @@
         </h5>
 
         <div class="grid">
-
             {{#each hotels}}
+
             <div class="grid-item featured-hotels">
                 <img src="/HOTEL/{{this._id}}.jpg" alt="" class="hotel-image" />
                 <h5 class="hotel-name">{{this.username}}</h5>
@@ -21,7 +20,8 @@
                     <i class="fas fa-star rating"></i>
                     <i class="fas fa-star-half rating"></i>
                 </div>
-                <a href="/viewrooms/?id={{this._id}}&hotel={{this.Destination}}" class="btn btn-gradient">Book Now
+                {{#if place}}sdfsdgfsdg{{/if}}
+                <a href="/viewrooms/?id={{this._id}}&hotel={{../place}}" class="btn btn-gradient">Book Now
                     <span class="dots"><i class="fas fa-ellipsis-h"></i></span>
                 </a>
             </div>

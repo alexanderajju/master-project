@@ -16,7 +16,7 @@ const {
   getHotel,
 } = require("../helper/hotel_helpers");
 let fs = require("fs");
-const { request } = require("http");
+var nodemailer = require("nodemailer");
 
 var router = express.Router();
 
@@ -99,16 +99,47 @@ router.get("/addhotel", async (req, res) => {
   });
 });
 router.post("/addhotel", (req, res) => {
-  hotelsignup(req.body).then((id) => {
-    if (id) {
-      let image = req.files.image;
-      image.mv("./public/HOTEL/" + id + ".jpg", (err, done) => {
-        if (err) {
-          console.log(err);
+  hotelsignup(req.body).then((response) => {
+    if (response.id) {
+      var transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+          user: "alexanderajju@gmail.com",
+          pass: "krsbqimfqnpqknkz",
+        },
+      });
+      console.log(response.password);
+      var mailOptions = {
+        from: "alexanderajju@gmail.com",
+        to: response.email,
+        subject: "Your account Created in Travelix",
+        text:
+          "Your Hotel Created successfully with username:- " +
+          response.username +
+          " and your password is: " +
+          response.password,
+      };
+
+      transporter.sendMail(mailOptions, function (error, info) {
+        if (error) {
+          console.log(error);
         } else {
-          res.redirect("/admin");
+          console.log("Email sent: " + info.response);
         }
       });
+
+      let image = req.files.image;
+      if (req.files.image) {
+        image.mv("./public/HOTEL/" + response.id + ".jpg", (err, done) => {
+          if (err) {
+            console.log(err);
+          } else {
+            res.redirect("/admin");
+          }
+        });
+      } else {
+        alert("no image found to delete");
+      }
     }
   });
 });
@@ -137,6 +168,7 @@ router.get("/hotels", (req, res) => {
 router.post("/deletehotel", (req, res) => {
   deleteHotel(req.body.id, req.body.Destination).then((response) => {
     if (response.status) {
+      console.log("dlete hotel called");
       fs.unlink("./public/HOTEL/" + req.body.id + ".jpg", (err, done) => {
         if (err) {
           console.log(err);
@@ -162,7 +194,7 @@ router.post("/edithotel/:id", (req, res) => {
       let id = req.params.id;
       let image = req.files.image;
       image.mv("./public/HOTEL/" + id + ".jpg");
-    } 
+    }
   });
 });
 router.get("/customers", async (req, res) => {

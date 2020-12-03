@@ -23,16 +23,17 @@
         }
 
         .mapboxgl-ctrl-geocoder input[type='text'] {
-
             padding: 0 !important;
             text-align: center !important;
-
-
         }
 
         .mapbox-directions-component-keyline {
             box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 0.1) !important;
 
+        }
+
+        .header {
+            display: none;
         }
     </style>
 </head>
@@ -99,8 +100,7 @@
             <div class="row">
                 <div class="left col-lg-4">
                     <div class="photo-left">
-                        <img class="photo"
-                            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTJm0gAXunXcm3HezBOW5XyULCkkdCxQ95_XA&usqp=CAU" />
+                        <img class="photo" src="/HOTEL/{{user._id}}.jpg" />
                         <div class="active"></div>
                     </div>
                     <h4 class="name">{{user.username}}</h4>
