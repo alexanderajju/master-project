@@ -232,7 +232,7 @@ section {
 /* hero */
 .hero {
   width: 100%;
-  height: 100vh;
+  /* height: 100vh; */
   background: url("/images/hero_background.jpg") center no-repeat;
   background-size: cover;
   display: flex;
@@ -248,7 +248,7 @@ section {
   top: 0;
   left: 0;
   width: inherit;
-  height: inherit;
+  height: 100%;
   background-color: var(--purple-transparent-alt);
   z-index: -1;
 }

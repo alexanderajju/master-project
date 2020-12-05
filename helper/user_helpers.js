@@ -6,7 +6,6 @@ const {
 const db = require("../config/connection");
 const Promise = require("promise");
 const bcrypt = require("bcrypt");
-const { resolve, reject } = require("promise");
 const ObjectId = require("mongodb").ObjectId;
 
 module.exports = {

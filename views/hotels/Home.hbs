@@ -17,8 +17,8 @@
                 <div class="image-wrap">
                     <a onclick="deleteroom('{{this._id}}')" class="sm-link deleteroom btn  rooms-btn delete"><i
                             class="fas fa-trash-alt"></i></a>
-                    <h5 style="cursor: pointer;" class="bookingroom editroom btn  rooms-btn"> <a
-                            href="/hotel/editroom/{{this._id}}">edit room</a></h5>
+                    <a href="/hotel/editroom/{{this._id}}" class="bookingroom editroom btn  rooms-btn sm-link edit"><i
+                            class="fas fa-edit"></i></a>
                     <img class="room-image" src="/HOTEL/{{this._id}}.jpg" alt="" />
                     <h5 class="room-name"> room {{this.roomnumber}}</h5>
                 </div>
@@ -68,7 +68,7 @@
     .bookingroom {
         color: #fff;
         position: absolute;
-        right: 0px;
+        right: -10px;
         z-index: 10;
         cursor: pointer
     }
@@ -81,10 +81,10 @@
         cursor: pointer
     }
 
-    .editroom {
-        /* justify-content: flex-start; */
-        /* display: flex; */
-        top: 10px;
+
+
+    .hero.editroom {
+        height: 100% !important;
     }
 </style>
 <script>
