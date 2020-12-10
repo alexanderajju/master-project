@@ -11,6 +11,8 @@ const {
   compareroomarray,
   editroom,
   deleteRoom,
+  compareDestination,
+  addhotelDestination,
 } = require("../helper/hotel_helpers");
 
 const verifyuser = (req, res, next) => {
@@ -102,8 +104,16 @@ router.post("/editroom/:id", (req, res) => {
   }
 });
 router.post("/editfeatures", (req, res) => {
-  console.log(req.body);
-  editFeatures(req.session.hotel._id, req.body.features).then((response) => {
+  let features = [];
+  if (Array.isArray(req.body.features)) {
+    for (let i = 0; i < req.body.features.length; i++) {
+      features.push(req.body.features[i]);
+    }
+  } else {
+    features.push(req.body.features);
+  }
+  console.log(features);
+  editFeatures(req.session.hotel._id, features).then((response) => {
     res.redirect("/hotel");
   });
 });
@@ -130,10 +140,32 @@ router.post("/deleteroom", (req, res) => {
         } else {
           res.json({ status: true });
         }
-        
       });
-    } 
+    }
   });
+});
+router.get("/destination", verifyuser, async (req, res) => {
+  if (req.session.hotel) {
+    let hotel = req.session.hotel;
+
+    let response = await compareDestination(hotel._id);
+
+    res.render("hotels/destination", {
+      hotel,
+      notdestination: response.value,
+      destination: response.destination,
+    });
+  }
+});
+router.post("/destination/:id", (req, res) => {
+  console.log("psot>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", req.session.hotel._id);
+  addhotelDestination(req.session.hotel._id, req.body.destination).then(
+    (response) => {
+      if (response.status) {
+        res.redirect("/hotel/destination");
+      }
+    }
+  );
 });
 
 module.exports = router;

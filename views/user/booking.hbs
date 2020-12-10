@@ -1,0 +1,114 @@
+<section class="rooms">
+    <div class="container">
+        <h5 class="section-head">
+            <span class="heading">Booking</span>
+            <span class="sub-heading">Orders</span>
+        </h5>
+
+        <div class="grid rooms-grid">
+
+
+
+            {{#each rooms}}
+
+
+
+            <div class="grid-item featured-rooms">
+                <div class="image-wrap">
+                    <a onclick="deleteroom('{{this._id}}')" class="sm-link deleteroom btn  rooms-btn delete"><i
+                            class="fas fa-trash-alt"></i></a>
+                    <a href="/hotel/editroom/{{this._id}}" class="bookingroom editroom btn  rooms-btn sm-link edit"><i
+                            class="fas fa-edit"></i></a>
+                    <img class="room-image" src="/HOTEL/{{this._id}}.jpg" alt="" />
+                    <h5 class="room-name"> room {{this.roomnumber}}</h5>
+                </div>
+                <div class="room-info-wrap">
+                    <div>
+                        <span class="room-price">${{this.price}} <span class="per-night">Per Night</span>
+                        </span>
+
+                        <p class="paragraph"> {{this.description}}</p>
+
+
+                        <div class="features">
+                            {{#each this.features}}
+                            <h5>
+                                {{this}}
+                            </h5>
+                            {{/each}}
+                        </div>
+
+
+
+
+                    </div>
+
+
+
+
+                </div>
+
+            </div>
+
+
+
+
+
+            {{/each}}
+
+
+
+
+
+
+        </div>
+    </div>
+</section>
+<style>
+    .bookingroom {
+        color: #fff;
+        position: absolute;
+        right: -10px;
+        z-index: 10;
+        cursor: pointer
+    }
+
+    .deleteroom {
+        color: #fff;
+        position: absolute;
+        left: 0px;
+        z-index: 10;
+        cursor: pointer
+    }
+
+
+
+    .hero.editroom {
+        height: 100% !important;
+    }
+</style>
+<script>
+
+    function deleteroom(id) {
+
+        console.log(id)
+        if (!confirm('Are you sure?')) return false;
+        $.ajax({
+            url: "/hotel/deleteroom",
+            data: {
+                id: id,
+            },
+            method: 'post',
+            success: (response) => {
+                if (response.status) {
+                    console.log(response)
+                    location.href = "/hotel"
+                } else {
+                    alert(">>>>>>")
+                }
+            }
+
+
+        })
+    }
+</script>

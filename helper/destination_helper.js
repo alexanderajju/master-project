@@ -63,10 +63,7 @@ module.exports = {
             },
           ])
           .toArray();
-        console.log(
-          "first>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>",
-          hotel
-        );
+
         // hotel = hotel[0].features;
         features = features[0].features;
         hotel = hotel[0].features;
@@ -77,6 +74,9 @@ module.exports = {
               return !(first.includes(el) && second.includes(el));
             });
           };
+          console.log(">>>>>>>>>>>>>>>>>>>>>", hotel);
+          console.log(features);
+          console.log(removeCommon(hotel, features));
           let notfeature = removeCommon(hotel, features);
           resolve({ notfeature, hotel });
         } else {

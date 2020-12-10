@@ -2,10 +2,13 @@ const {
   userCollection,
   hotelCollection,
   roomCollection,
+  bookingCollection,
 } = require("../config/collections");
 const db = require("../config/connection");
 const Promise = require("promise");
 const bcrypt = require("bcrypt");
+const { resolve } = require("promise");
+const { response } = require("express");
 const ObjectId = require("mongodb").ObjectId;
 
 module.exports = {
@@ -20,8 +23,6 @@ module.exports = {
         .then((doc) => {
           response.username = doc.ops[0].username;
           response.status = true;
-          console.log("userhelper>>>>>>>>>>>>>>>");
-          console.log(response);
           resolve(response);
         });
     });
@@ -119,7 +120,6 @@ module.exports = {
     });
   },
   getRoom: (id, hotel) => {
-    console.log(id);
     return new Promise(async (resolve, reject) => {
       let rooms = await db
         .get()
@@ -135,6 +135,56 @@ module.exports = {
         .toArray();
       console.log("rooms>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", rooms);
       resolve(rooms);
+    });
+  },
+  checkoutroom: (id) => {
+    return new Promise(async (resolve, reject) => {
+      let rooms = await db
+        .get()
+        .collection(roomCollection)
+        .findOne({ _id: ObjectId(id) });
+      resolve(rooms);
+    });
+  },
+  userbooking: (data, user) => {
+    let bookings = {
+      userid: ObjectId(user._id),
+      booking: [data],
+    };
+    return new Promise(async (resolve, reject) => {
+      let orders = await db
+        .get()
+        .collection(bookingCollection)
+        .findOne({ userid: ObjectId(user._id) });
+
+      if (orders) {
+        console.log(orders.booking);
+        console.log("booking id exists");
+        let roomexist = orders.booking.findIndex(
+          (room) => room.roomid == data.roomid
+        );
+        console.log(roomexist);
+        if (roomexist != -1) {
+          console.log("room already booked");
+          resolve({ status: "Room already booked" });
+        } else {
+          db.get()
+            .collection(bookingCollection)
+            .updateOne(
+              { userid: ObjectId(user._id) },
+              { $push: { booking: data } }
+            );
+          resolve();
+        }
+      } else {
+        console.log("not found");
+        db.get()
+          .collection(bookingCollection)
+          .insertOne(bookings)
+          .then((resposnse) => {
+            resolve();
+          });
+      }
     });
   },
 };

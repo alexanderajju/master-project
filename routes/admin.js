@@ -188,6 +188,11 @@ router.get("/edithotel", async (req, res) => {
   }
 });
 router.post("/edithotel/:id", (req, res) => {
+  console.log(req.body);
+  let destination = [];
+  destination.push(req.body.destination);
+  console.log(destination);
+
   editHotel(req.params.id, req.body).then((response) => {
     res.redirect("/admin/hotels");
     if (req.files.image) {

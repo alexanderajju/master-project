@@ -16,7 +16,7 @@
                     <a href="#" class="nav-link">About</a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link">Offers</a>
+                    <a href="/booking" class="nav-link">Bookings</a>
                 </li>
                 {{#if user}}
                 <li class="nav-item">
@@ -25,6 +25,16 @@
                         <img class="homephoto" src="/HOTEL/{{user._id}}.jpg " alt={{user.username}} />
                         {{else}}
                         <span>{{user.username}}</span>
+                        {{/if}}
+                    </a>
+                </li>
+                {{else if googleuser}}
+                <li class="nav-item">
+                    <a href="/profile" class="nav-link userheader">
+                        {{#if googleuser.picture}}
+                        <img class="homephoto" src=" {{googleuser.picture}}" alt={{googleuser.name}} />
+                        {{else}}
+                        <span>{{googleuser.name}}</span>
                         {{/if}}
                     </a>
                 </li>
@@ -37,13 +47,17 @@
                 <li class="nav-item">
                     <a href="/logout" class="nav-link">Logout</a>
                 </li>
+                {{else if googleuser}}
+                <li class="nav-item">
+                    <a href="/logout" class="nav-link">Logout</a>
+                </li>
                 {{else}}
-
                 <li class="nav-item">
                     <a href="/login" class="nav-link">Login</a>
                 </li>
 
                 {{/if}}
+
 
 
             </ul>

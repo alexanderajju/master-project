@@ -36,12 +36,13 @@
                         <div class="input-group">
 
                             <div class="checkboxes">
+                                <input type="hidden"  name="destination" placeholder="User Name" />
                                 {{#each hotel.destination}}
                                 <input type="checkbox" checked="{{this}}" value="{{this}}" name="destination"
                                     placeholder="User Name" />
                                 <h3>{{this}}</h3>
                                 {{/each}}
-                             
+
 
                             </div>
 

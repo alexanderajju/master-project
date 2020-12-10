@@ -7,7 +7,7 @@
 
         <div class="grid rooms-grid">
 
-           
+
             {{#if rooms}}
 
             {{#each rooms}}
@@ -17,7 +17,8 @@
             <div class="grid-item featured-rooms">
                 <div class="image-wrap">
                     <h5 style="cursor: pointer;" class="bookingroom btn  rooms-btn"> <a
-                            href="#">Book Now &rarr;</a></h5>
+                            href="/checkout/?id={{this._id}}">Book Now
+                            &rarr;</a></h5>
                     <img class="room-image" src="/HOTEL/{{this._id}}.jpg" alt="" />
                     <h5 class="room-name"> room {{this.roomnumber}}</h5>
                 </div>

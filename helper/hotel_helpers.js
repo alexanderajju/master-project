@@ -9,6 +9,7 @@ const ObjectId = require("mongodb").ObjectId;
 const bcrypt = require("bcrypt");
 var generator = require("generate-password");
 let fs = require("fs");
+const { features } = require("process");
 
 module.exports = {
   hotelsignup: (data) => {
@@ -76,32 +77,28 @@ module.exports = {
       }
     });
   },
-  addDestination: (data, user) => {
+  addhotelDestination: (id, data) => {
+    console.log(id, data);
     return new Promise((resolve, reject) => {
-      // { Destination: 'Banglore' }
+      let place = [];
+      if (Array.isArray(data)) {
+        for (let i = 0; i < data.length; i++) {
+          place.push(data[i]);
+        }
+      } else {
+        place.push(data);
+      }
       db.get()
         .collection(hotelCollection)
         .updateOne(
-          { _id: ObjectId("5fbc8a1035207f1f882c4cf0") },
+          { _id: ObjectId(id) },
           {
-            $push: {
-              destination: data.Destination,
+            $set: {
+              destination: place,
             },
           }
-        )
-        .then((response) => {
-          db.get()
-            .collection(destinationCollection)
-            .updateOne(
-              { Destination: "Banglore" },
-              {
-                $push: {
-                  hotels: "added",
-                },
-              }
-            );
-          // resolve(user._id);
-        });
+        );
+      resolve({ status: true });
     });
   },
   hoteldestination: (user) => {
@@ -152,9 +149,14 @@ module.exports = {
   editHotel: (id, data) => {
     return new Promise((resolve, reject) => {
       let place = [];
-      place.destination = data.destination;
+      if (Array.isArray(data.destination)) {
+        for (let i = 0; i < data.destination.length; i++) {
+          place.push(data.destination[i]);
+        }
+      } else {
+        place.push(req.body.features);
+      }
 
-      console.log(place.destination);
       db.get()
         .collection(hotelCollection)
         .updateOne(
@@ -164,7 +166,7 @@ module.exports = {
               Name: data.Name,
               Mobile: data.Mobile,
               username: data.username,
-              destination: place.destination,
+              destination: place,
             },
           }
         )
@@ -173,7 +175,7 @@ module.exports = {
         });
     });
   },
-  editFeatures: (id, features) => {
+  editFeatures: (id, data) => {
     return new Promise((resolve, reject) => {
       db.get()
         .collection(hotelCollection)
@@ -183,7 +185,7 @@ module.exports = {
           },
           {
             $set: {
-              features: features,
+              features: data,
             },
           }
         )
@@ -341,10 +343,12 @@ module.exports = {
               return !(first.includes(el) && second.includes(el));
             });
           };
+          console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", room);
+          console.log(removeCommon(room, features));
           let notfeature = removeCommon(room, features);
-          // console.log(removeCommon(room, features));
           resolve({ notfeature, room, roomvalue });
         } else {
+          console.log("called");
           let notfeature = features;
           resolve({ notfeature, room, roomvalue });
         }
@@ -354,6 +358,9 @@ module.exports = {
   editroom: (id, body) => {
     return new Promise((resolve, reject) => {
       console.log(id, body);
+      let features = [];
+      features = body.features;
+      console.log(features);
       db.get()
         .collection(roomCollection)
         .updateOne(
@@ -366,7 +373,7 @@ module.exports = {
               price: body.price,
               description: body.description,
               Destination: body.Destination,
-              features: body.features,
+              features: features,
             },
           }
         )
@@ -383,6 +390,43 @@ module.exports = {
         .removeOne({ _id: ObjectId(id) });
       response.status = true;
       resolve(response);
+    });
+  },
+  compareDestination: (id) => {
+    return new Promise(async (resolve, reject) => {
+      let notdestination = [];
+      let hoteldestination = await db
+        .get()
+        .collection(hotelCollection)
+        .aggregate([
+          {
+            $match: { _id: ObjectId(id) },
+          },
+        ])
+        .toArray();
+
+      let destination = await db
+        .get()
+        .collection(destinationCollection)
+        .find()
+        .toArray();
+
+      for (let i in destination) {
+        console.log(destination[i].Destination);
+        notdestination.push(destination[i].Destination);
+      }
+      const removeCommon = (first, second) => {
+        const spreaded = [...first, ...second];
+        return spreaded.filter((el) => {
+          return !(first.includes(el) && second.includes(el));
+        });
+      };
+      console.log("destination>>>>>>>>>>>>>>>", notdestination);
+      hoteldestination = hoteldestination[0].destination;
+      console.log(hoteldestination);
+      let value = removeCommon(hoteldestination, notdestination);
+      console.log(value);
+      resolve({ value, destination: hoteldestination });
     });
   },
 };

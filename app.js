@@ -11,6 +11,8 @@ const db = require("./config/connection");
 const session = require("express-session");
 const fileUpload = require("express-fileupload");
 const back = require("express-back");
+const passport = require("passport");
+require("./passport_config");
 
 var app = express();
 
@@ -42,6 +44,8 @@ app.use(
     saveUninitialized: true,
   })
 );
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use(back());
 
@@ -52,6 +56,22 @@ db.connect((err) => {
     console.log("[+]DB connected to port 27017");
   }
 });
+
+app.get(
+  "/google",
+  passport.authenticate("google", { scope: ["profile", "email"] })
+);
+
+app.get(
+  "/google/callback",
+  passport.authenticate("google", { failureRedirect: "/login" }),
+  function (req, res) {
+    console.log("req>>>>>>>>>>>>>>>>>>>>>>>>", req.user._json);
+    req.session.googleuser = req.user._json;
+    // Successful authentication, redirect home.
+    res.redirect("/");
+  }
+);
 
 app.use("/admin", admin);
 app.use("/", usersRouter);
