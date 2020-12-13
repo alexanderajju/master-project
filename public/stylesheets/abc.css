@@ -71,7 +71,7 @@ main {
   border-radius: 20px;
   position: absolute;
   right: calc(50% - 69px);
-  top: 49px;
+  top: 137px;
   background-color: #07ff37;
   border: 3px solid #fff;
 }
@@ -158,7 +158,13 @@ main {
 }
 
 .right {
-  padding: 0 25px 0 25px !important;
+  padding: 25px 25px 25px 25px !important;
+  display: flex;
+  justify-content: center;
+  
+  margin-left: 2%;
+  /* background-color: #1da1f2; */
+  flex: 1;
 }
 
 .navprofile {

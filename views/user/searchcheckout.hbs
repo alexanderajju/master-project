@@ -34,15 +34,15 @@
             <div class="container">
                 <div class="row">
                     <div class="booking-form">
-                        <form method="POST" action="/checkout" enctype="multipart/form-data">
+                        <form method="POST" action="/searchcheckout" enctype="multipart/form-data">
                             <div class="form-group">
                                 <div class="form-checkbox">
                                     <label for="roundtrip">
-                                        <input type="radio" id="roundtrip" name="room-type" value="Executive">
+                                        <input type="radio" id="roundtrip" name="roomtype" value="Executive">
                                         <span></span>Executive
                                     </label>
                                     <label for="one-way">
-                                        <input type="radio" id="one-way" name="room-type" value="Casual">
+                                        <input type="radio" id="one-way" name="roomtype" value="Casual">
                                         <span></span>Casual
                                     </label>
 
@@ -52,10 +52,12 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <span class="form-label">Hotel Name</span>
-                                        <input class="form-control" value="{{room.hotel}}" name="hotel" type="text"
+                                        <input class="form-control" value="{{data.hotel}}" name="hotel" type="text"
                                             placeholder="City or Hotel">
-                                        <input class="form-control" value="{{room._id}}" name="roomid" type="hidden"
-                                            placeholder="City or Hotel">
+                                        <input class="form-control" value="{{googleuser._id}}" name="userid"
+                                            type="hidden" placeholder="City or Hotel">
+                                        <input class="form-control" value="{{data.Destination}}" name="Destination"
+                                            type="hidden" placeholder="City or Hotel">
                                     </div>
                                 </div>
 
@@ -64,37 +66,27 @@
                                 <div class="col-md-3">
                                     <div class="form-group">
                                         <span class="form-label">CHECK IN</span>
-                                        <input class="form-control" name="checkin" type="date" required>
+                                        <input class="form-control" value="{{data.checkin}}" name="checkin" type="date"
+                                            required>
                                     </div>
                                 </div>
                                 <div class="col-md-3">
                                     <div class="form-group">
                                         <span class="form-label">CHECK OUT</span>
-                                        <input class="form-control" name="checkout" type="date" required>
+                                        <input class="form-control" value="{{data.checkout}}" name="checkout"
+                                            type="date" required>
                                     </div>
                                 </div>
                                 <div class="col-md-2">
                                     <div class="form-group">
-                                        <span class="form-label">Adults (18+)</span>
-                                        <select name="adults" class="form-control">
-                                            <option value="1">1</option>
-                                            <option value="2">2</option>
-                                            <option value="3">3</option>
+                                        <span class="form-label">Rooms </span>
+                                        <select name="roomcount" class="form-control">
+                                            <option value="{{data.roomcount}}">{{data.roomcount}}</option>
                                         </select>
                                         <span class="select-arrow"></span>
                                     </div>
                                 </div>
-                                <div class="col-md-2">
-                                    <div class="form-group">
-                                        <span class="form-label">Children (0-8)</span>
-                                        <select name="children" class="form-control">
-                                            <option value="0">0</option>
-                                            <option value="1">1</option>
-                                            <option value="2">2</option>
-                                        </select>
-                                        <span class="select-arrow"></span>
-                                    </div>
-                                </div>
+
                             </div>
                             <div class="row">
 

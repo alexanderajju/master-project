@@ -7,24 +7,31 @@
 
         <div class="grid">
             {{#each hotels}}
+            <form action="/searchbooking" method="post">
+                <div class="grid-item featured-hotels">
+                    <img src="/HOTEL/{{this._id}}.jpg" alt="" class="hotel-image" />
+                    <h5 class="hotel-name">{{this.username}}</h5>
+                    <input type="hidden" name="hotel" value="{{this.username}}">
 
-            <div class="grid-item featured-hotels">
-                <img src="/HOTEL/{{this._id}}.jpg" alt="" class="hotel-image" />
-                <h5 class="hotel-name">{{this.username}}</h5>
+                    <span class="hotel-price">$ 200 per nights</span>
+                    <div class="hotel-rating">
+                        <i class="fas fa-star rating"></i>
+                        <i class="fas fa-star rating"></i>
+                        <i class="fas fa-star rating"></i>
+                        <i class="fas fa-star rating"></i>
+                        <i class="fas fa-star-half rating"></i>
+                    </div>
 
-                <span class="hotel-price">$ 200 per nights</span>
-                <div class="hotel-rating">
-                    <i class="fas fa-star rating"></i>
-                    <i class="fas fa-star rating"></i>
-                    <i class="fas fa-star rating"></i>
-                    <i class="fas fa-star rating"></i>
-                    <i class="fas fa-star-half rating"></i>
+                    <input type="hidden" name="roomcount" value="{{../query.roomcount}}">
+                    <input type="hidden" name="Destination" value="{{../query.Destination}}">
+                    <input type="hidden" name="checkin" value="{{../query.checkin}}">
+                    <input type="hidden" name="checkout" value="{{../query.checkout}}">
+                    <input type="submit" value="Book Now" class="btn btn-gradient"></input>
                 </div>
 
-                <a href="/viewrooms/?id={{this._id}}&hotel={{../place}}" class="btn btn-gradient">Book Now
-                    <span class="dots"><i class="fas fa-ellipsis-h"></i></span>
-                </a>
-            </div>
+            </form>
+
+
 
             {{/each}}
 

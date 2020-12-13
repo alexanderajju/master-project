@@ -7,8 +7,6 @@ const {
 const db = require("../config/connection");
 const Promise = require("promise");
 const bcrypt = require("bcrypt");
-const { resolve } = require("promise");
-const { response } = require("express");
 const ObjectId = require("mongodb").ObjectId;
 
 module.exports = {
@@ -147,10 +145,12 @@ module.exports = {
     });
   },
   userbooking: (data, user) => {
+    data.roomid = ObjectId(data.roomid);
     let bookings = {
       userid: ObjectId(user._id),
       booking: [data],
     };
+
     return new Promise(async (resolve, reject) => {
       let orders = await db
         .get()
@@ -158,7 +158,6 @@ module.exports = {
         .findOne({ userid: ObjectId(user._id) });
 
       if (orders) {
-        console.log(orders.booking);
         console.log("booking id exists");
         let roomexist = orders.booking.findIndex(
           (room) => room.roomid == data.roomid
@@ -183,6 +182,169 @@ module.exports = {
           .insertOne(bookings)
           .then((resposnse) => {
             resolve();
+          });
+      }
+    });
+  },
+  getuserbooking: (userid) => {
+    return new Promise(async (resolve, reject) => {
+      let rooms = [];
+      let orders = await db
+        .get()
+        .collection(bookingCollection)
+        .findOne({ userid: ObjectId(userid) });
+
+      for (let index = 0; index < orders.booking.length; index++) {
+        const element = orders.booking[index];
+
+        let room = await db
+          .get()
+          .collection(roomCollection)
+          .findOne({ _id: ObjectId(element.roomid) });
+
+        rooms.push(room);
+      }
+      resolve(rooms);
+    });
+  },
+  removeBooking: (userid, roomid) => {
+    return new Promise((resolve, reject) => {
+      db.get()
+        .collection(bookingCollection)
+        .updateOne(
+          {
+            userid: ObjectId(userid),
+          },
+          {
+            $pull: { booking: { roomid: ObjectId(roomid) } },
+          }
+        );
+      resolve();
+    });
+  },
+  gettotal: (id) => {
+    return new Promise(async (resolve, reject) => {
+      let total = await db
+        .get()
+        .collection(bookingCollection)
+        .aggregate([
+          {
+            $match: {
+              userid: ObjectId(id),
+            },
+          },
+          {
+            $unwind: "$booking",
+          },
+          {
+            $project: {
+              roomid: "$booking.roomid",
+              hotel: "$booking.hotel",
+            },
+          },
+          {
+            $lookup: {
+              from: roomCollection,
+              localField: "roomid",
+              foreignField: "_id",
+              as: "room",
+            },
+          },
+          {
+            $project: {
+              roomid: 1,
+              hotel: 1,
+              room: { $arrayElemAt: ["$room", 0] },
+            },
+          },
+          {
+            $group: {
+              _id: null,
+              total: { $sum: "$room.price" },
+            },
+          },
+        ])
+        .toArray();
+      if (total.length != 0) {
+        resolve(total[0].total);
+      } else {
+        total = 0;
+        resolve(total);
+      }
+    });
+  },
+  searchBook: (data, user) => {
+    console.log(data);
+    let roomid = [];
+    return new Promise(async (resolve, reject) => {
+      let orders = await db
+        .get()
+        .collection(bookingCollection)
+        .findOne({ userid: ObjectId(user._id) });
+      let rooms = await db
+        .get()
+        .collection(roomCollection)
+        .find({
+          hotel: data.hotel,
+          booking: false,
+          Destination: data.Destination,
+          roomtype: data.roomtype,
+        })
+        .toArray();
+      console.log(rooms);
+      delete data.Destination;
+      for (let index = 0; index < rooms.length; index++) {
+        const element = rooms[index]._id;
+        roomid.push(element);
+      }
+
+      if (orders) {
+        console.log("booking id exists");
+        for (let index = 0; index < roomid.length; index++) {
+          data.roomid = ObjectId(roomid[index]);
+          let roomexist = orders.booking.findIndex(
+            (room) => room.roomid.toString() == roomid[index].toString()
+          );
+
+          console.log(roomexist);
+          if (roomexist != -1) {
+            console.log("room already booked");
+            resolve({ status: "Room already booked" });
+          } else {
+            db.get()
+              .collection(bookingCollection)
+              .updateOne(
+                { userid: ObjectId(user._id) },
+                { $push: { booking: data } }
+              );
+            resolve();
+          }
+          // roomid = [];
+        }
+      } else {
+        console.log("not found");
+        let bookings = {
+          userid: ObjectId("5fd1a5e74a9a9a35043635e6"),
+          booking: [],
+        };
+        db.get()
+          .collection(bookingCollection)
+          .insertOne(bookings)
+          .then((resposnse) => {
+            for (let index = 0; index < roomid.length; index++) {
+              data.roomid = ObjectId(roomid[index]);
+
+              db.get()
+                .collection(bookingCollection)
+                .updateOne(
+                  { userid: ObjectId(user._id) },
+                  { $push: { booking: data } }
+                );
+            }
+
+            resolve();
+            // roomid = [];
+            // booking = [];
           });
       }
     });

@@ -1,9 +1,16 @@
 <section class="rooms">
     <div class="container">
         <h5 class="section-head">
+            <span class="checkout">
+                <h3>$: {{total}}</h3>
+                <button class="btn  checkout-btn">checkout</button>
+            </span>
+
             <span class="heading">Booking</span>
-            <span class="sub-heading">Orders</span>
+
+
         </h5>
+
 
         <div class="grid rooms-grid">
 
@@ -14,11 +21,11 @@
 
 
             <div class="grid-item featured-rooms">
+
                 <div class="image-wrap">
-                    <a onclick="deleteroom('{{this._id}}')" class="sm-link deleteroom btn  rooms-btn delete"><i
+                    <a onclick="bookingorder('{{this._id}}')" class="sm-link deleteroom btn  rooms-btn delete"><i
                             class="fas fa-trash-alt"></i></a>
-                    <a href="/hotel/editroom/{{this._id}}" class="bookingroom editroom btn  rooms-btn sm-link edit"><i
-                            class="fas fa-edit"></i></a>
+
                     <img class="room-image" src="/HOTEL/{{this._id}}.jpg" alt="" />
                     <h5 class="room-name"> room {{this.roomnumber}}</h5>
                 </div>
@@ -62,6 +69,7 @@
 
 
         </div>
+
     </div>
 </section>
 <style>
@@ -81,7 +89,20 @@
         cursor: pointer
     }
 
+    .checkout-btn {
+        display: flex;
+        background-color: green;
+        justify-content: center;
+        float: right;
+        outline: none;
+        cursor: pointer;
+    }
 
+
+
+    .checkout {
+        float: right;
+    }
 
     .hero.editroom {
         height: 100% !important;
@@ -89,20 +110,21 @@
 </style>
 <script>
 
-    function deleteroom(id) {
+    function bookingorder(id) {
 
         console.log(id)
         if (!confirm('Are you sure?')) return false;
         $.ajax({
-            url: "/hotel/deleteroom",
+            url: "/removebooking",
             data: {
                 id: id,
             },
             method: 'post',
             success: (response) => {
+
                 if (response.status) {
                     console.log(response)
-                    location.href = "/hotel"
+                    location.reload()
                 } else {
                     alert(">>>>>>")
                 }

@@ -272,9 +272,11 @@ module.exports = {
     });
   },
   addRoom: (data, hotel) => {
+    console.log(data);
     return new Promise((resolve, reject) => {
       data.hotel_id = ObjectId(hotel._id);
       data.hotel = hotel.username;
+      data.booking = false;
       db.get()
         .collection(roomCollection)
         .insertOne(data)
@@ -384,12 +386,11 @@ module.exports = {
   },
   deleteRoom: (id) => {
     return new Promise(async (resolve, reject) => {
-      let response = [];
       db.get()
         .collection(roomCollection)
         .removeOne({ _id: ObjectId(id) });
-      response.status = true;
-      resolve(response);
+
+      resolve({ status: true });
     });
   },
   compareDestination: (id) => {

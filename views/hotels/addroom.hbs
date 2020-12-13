@@ -12,17 +12,29 @@
                     </div>
                     <form action="/hotel/addroom" method="POST" enctype="multipart/form-data"
                         class="form contact-form destination-add">
+                        <div class="input-group-wrap">
+                            <div class="input-group">
+                                <input type="number" id="roomnumber" name="roomnumber" placeholder="Room Number"
+                                    class="input" />
+                                <span class="bar"></span>
+                            </div>
+
+                            <div class="input-group">
+                                <select name="roomtype" id="roomtype" class="options">
+                                    <option value="Casual">Casual</option>
+                                    <option value="Executive">Executive</option>
+                                </select>
+                                <span class="bar"></span>
+                            </div>
+                        </div>
+
+
                         <div class="input-group">
-                            <input type="number" id="roomnumber" name="roomnumber" placeholder="Room Number"
-                                class="input" />
+                            <input type="text" id="price" name="price" placeholder="price" class="input" />
                             <span class="bar"></span>
                         </div>
                         <div class="input-group">
-                            <input type="number" id="price" name="price" placeholder="price" class="input" />
-                            <span class="bar"></span>
-                        </div>
-                        <div class="input-group">
-                            <textarea cols="30" rows="8" maxlength="105" name="description" placeholder="Type...."
+                            <textarea cols="30" rows="8" maxlength="105" name="description" placeholder="Description"
                                 class="input"></textarea>
                             <span class="bar"></span>
                         </div>
@@ -44,15 +56,15 @@
                                 <div class="checkbox-left">
 
                                     <label for="features">
-                                        <input type="checkbox" value=" Drinking water" id="features" name="features" />
+                                        <input type="checkbox" value="Drinking water" id="features" name="features" />
                                         Drinking water
                                     </label>
                                     <label for="features">
-                                        <input type="checkbox" value="  Wifi" id="features" name="features" />
+                                        <input type="checkbox" value="Wifi" id="features" name="features" />
                                         Wifi
                                     </label>
                                     <label for="features">
-                                        <input type="checkbox" value=" Hot water" id="features" name="features" />
+                                        <input type="checkbox" value="Hot water" id="features" name="features" />
                                         Hot water
                                     </label>
 

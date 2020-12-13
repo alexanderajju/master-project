@@ -14,6 +14,7 @@ const {
   compareDestination,
   addhotelDestination,
 } = require("../helper/hotel_helpers");
+let fs = require("fs");
 
 const verifyuser = (req, res, next) => {
   if (req.session.hotel) {
@@ -118,7 +119,11 @@ router.post("/editfeatures", (req, res) => {
   });
 });
 router.post("/addroom", (req, res) => {
-  console.log(req.body, req.session.hotel._id);
+  console.log(req.body);
+  console.log(req.body.price);
+  req.body.price = +req.body.price;
+  console.log(req.body);
+
   addRoom(req.body, req.session.hotel).then((id) => {
     let image = req.files.image;
     image.mv("./public/HOTEL/" + id + ".jpg", (err, done) => {
@@ -132,7 +137,6 @@ router.post("/addroom", (req, res) => {
 });
 router.post("/deleteroom", (req, res) => {
   deleteRoom(req.body.id).then((response) => {
-    console.log(response);
     if (response.status) {
       fs.unlink("./public/HOTEL/" + req.body.id + ".jpg", (err, done) => {
         if (err) {
