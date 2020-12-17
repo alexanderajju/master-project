@@ -1,0 +1,181 @@
+{{!-- <section>
+    <div class="container mt-5">
+
+
+
+        <form action="" id="checkout-form">
+            <div class="row">
+                <div class="col-md-6">
+                    <h2>Enter Delivery Details</h2>
+
+                    <div>
+                        <label for="">Address</label>
+                        <input type="text" name="address" id="address" class="form-control">
+                        <label for="">Pincode</label>
+                        <input type="text" name="pincode" id="pincode" class="form-control">
+                        <label for="">Moblie</label>
+
+                        <input type="tel" name="mobile" id="mobile" class="form-control">
+                        <input type="text" name="userId" id="userId" value={{user._id}} hidden class="form-control">
+                    </div>
+                </div>
+                <div style="border: 1px solid black; " class="col-md-4 ml-5">
+                    <div class="container mt-5 ml-5 checkout">
+                        <h5>Total Amount : Rs.{{total}}</h5>
+                        <hr>
+                        <div>
+                            <div class="payment">
+                                <h3>Payment Method</h3>
+
+                                <label class="radio-inline">
+                                    <input type="radio" name="payment" value="COD">COD
+                                </label>
+                                <label class="radio-inline ml-2">
+                                    <input type="radio" name="payment" value="online">online payment
+                                </label>
+                            </div>
+                            <button class="btn btn-primary" type="submit">checkout</button>
+                        </div>
+
+                    </div>
+
+
+                </div>
+            </div>
+        </form>
+    </div>
+
+
+
+
+</section> --}}
+<section class="contact">
+    <div class="container">
+        <h5 class="section-head" data-aos="fade-down">
+            <span class="heading">Checkout</span>
+            <span class=" sub-heading">Get more with in us</span>
+        </h5>
+        <div class="contact-content">
+            <div class="traveler-wrap" data-aos="fade-right" data-aos-duration="3000">
+                <img src="images/traveler.png" alt="" />
+            </div>
+            <form action="" id="checkout-form" class="form contact-form" data-aos="fade-left">
+                <div class="input-group-wrap">
+                    <div class="input-group">
+                        <input type="text" placeholder="Name" name="name" class="input" />
+                        <span class="bar"></span>
+                    </div>
+
+                    <div class="input-group">
+                        <input type="email" placeholder="E-mail" class="input" />
+                        <span class="bar"></span>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <input type="tel" name="mobile" placeholder="Mobile" class="input" />
+                    <span class="bar"></span>
+                </div>
+                <div class="input-group">
+                    <label for="total">Total amount: {{total}}
+                        <input type="hidden" name="total" value="10000" placeholder="Mobile" class="input" />
+                    </label>
+                    <span class="bar"></span>
+                </div>
+
+                <div class="input-group">
+
+                    <div class="payment">
+                        <label for="payment">
+                            Payment Method
+                        </label>
+                        <label class="radio-inline">
+                            <input type="radio" name="payment" value="COD">COD
+                        </label>
+                        <label class="radio-inline ml-2">
+                            <input type="radio" name="payment" value="online">online payment
+                        </label>
+                    </div>
+
+                    <span class="bar"></span>
+                </div>
+
+                <button class="btn form-btn btn-purple" type="submit">
+                    Send Message
+                    <span class="dots"><i class="fas fa-ellipsis-h"></i></span>
+                </button>
+            </form>
+        </div>
+    </div>
+</section>
+
+<script>
+    $("#checkout-form").submit((e) => {
+        e.preventDefault()
+        $.ajax({
+            url: '/place_order',
+            method: 'post',
+            data: $('#checkout-form').serialize(),
+            success: (response) => {
+                console.log(response)
+                if (response.codSuccess) {
+                    location.href = "/"
+                } else {
+                    razorpayPayment(response)
+                }
+            }
+        })
+
+    })
+    function razorpayPayment(order) {
+
+
+        var options = {
+            "key": "rzp_test_2wER6mnpGYCPCq", // Enter the Key ID generated from the Dashboard
+            "amount": order.amount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+            "currency": "INR",
+            "name": "Acme Corp",
+            "description": "Test Transaction",
+            "image": "https://example.com/your_logo",
+            "order_id": order.id, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+            "handler": function (response) {
+
+
+
+                verifyPayment(response, order)
+            },
+            "prefill": {
+                "name": "Aju ALex",
+                "email": "alexanderajju@gmail.com",
+                "contact": "9400379265"
+            },
+            "notes": {
+                "address": "Razorpay Corporate Office"
+            },
+            "theme": {
+                "color": "#F37254"
+            }
+        };
+        var rzp1 = new Razorpay(options);
+        rzp1.open();
+
+    }
+
+    function verifyPayment(payment, order) {
+        $.ajax({
+            url: '/verify-payment',
+            data: {
+                payment,
+                order
+            },
+            method: 'post',
+            success: (response) => {
+                if (response.status) {
+                    location.href = "/"
+                } else {
+                    alert("payment failed")
+                }
+            }
+        })
+    }
+</script>

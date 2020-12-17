@@ -14,10 +14,14 @@ const {
   removeBooking,
   gettotal,
   searchBook,
+  verifyPayment,
+  changeStatus,
+  generaterazorpay,
+  useroombooking,
+  placeOrder,
 } = require("../helper/user_helpers");
 var fs = require("fs");
-const passport = require("passport");
-require("../passport_config");
+const { ifError } = require("assert");
 
 var router = express.Router();
 
@@ -173,7 +177,7 @@ router.get("/destination", async (req, res) => {
     res.render("user/hotels", { hotels });
   }
 });
-router.post("/search", async (req, res) => {
+router.post("/search", verifyuser, async (req, res) => {
   let count = 0;
   for (let index = 0; index < req.body.count.length; index++) {
     const element = +req.body.count[index];
@@ -279,7 +283,7 @@ router.get("/booking", verifyuser, async (req, res) => {
   console.log(total.length);
   res.render("user/booking", { rooms, total });
 });
-router.post("/removebooking", (req, res) => {
+router.post("/removebooking", verifyuser, (req, res) => {
   console.log(req.session.googleuser._id);
   console.log(req.body.id);
 
@@ -287,22 +291,113 @@ router.post("/removebooking", (req, res) => {
     res.json({ status: true });
   });
 });
-router.post("/searchbooking", (req, res) => {
+router.post("/searchbooking", verifyuser, (req, res) => {
   console.log(req.body);
   console.log(req.session.googleuser);
-  res.render("user/searchcheckout", {
-    data: req.body,
-    googleuser: req.session.googleuser,
-  });
+
+  if (req.body.roomcount == 1) {
+    console.log("called rrom=1");
+
+    res.render("user/searchcheckout3", {
+      data: req.body,
+      googleuser: req.session.googleuser,
+    });
+  } else {
+    res.render("user/searchcheckout", {
+      data: req.body,
+      googleuser: req.session.googleuser,
+    });
+  }
 });
-router.post("/searchcheckout", (req, res) => {
+router.post("/searchcheckout", verifyuser, (req, res) => {
   console.log(req.body);
   delete req.body.userid;
-  delete req.body.roomcount;
+  req.body.roomcount = +req.body.roomcount;
   let googleuser = req.session.googleuser;
-  console.log(googleuser);
-  searchBook(req.body, googleuser).then((response) => {
-    res.redirect("/");
+  req.body.checkin = new Date(req.body.checkin);
+  req.body.checkout = new Date(req.body.checkout);
+  // console.log(googleuser);
+  console.log(req.body);
+  searchBook(req.body, googleuser, req.body.roomcount).then((response) => {
+    console.log(response);
+    if (!response) {
+      res.redirect("/");
+    }
+    if (response.status) {
+      date = new Date(response.data.checkin);
+      year = date.getFullYear();
+      month = date.getMonth() + 1;
+      dt = date.getDate();
+
+      if (dt < 10) {
+        dt = "0" + dt;
+      }
+      if (month < 10) {
+        month = "0" + month;
+      }
+
+      let checkin = year + "-" + month + "-" + dt;
+      dateout = new Date(response.data.checkout);
+      yearout = dateout.getFullYear();
+      monthout = dateout.getMonth() + 1;
+      dtout = dateout.getDate();
+
+      if (dtout < 10) {
+        dtout = "0" + dtout;
+      }
+      if (monthout < 10) {
+        monthout = "0" + monthout;
+      }
+
+      let checkout = yearout + "-" + monthout + "-" + dtout;
+      response.data.checkin = checkin;
+      response.data.checkout = checkout;
+
+      let googleuser = req.session.googleuser;
+
+      console.log("roomdata called");
+      res.render("user/searchcheckout2", {
+        err: response.status,
+        data: response.data,
+        length: response.roomlength,
+        destination: response.destination,
+        googleuser: googleuser,
+      });
+    } else {
+      res.redirect("/");
+    }
   });
+});
+router.get("/place_order", verifyuser, (req, res) => {
+  res.render("user/placeOrder");
+});
+
+router.post("/place_order", async (req, res) => {
+  let booking = await useroombooking();
+  let total = await gettotal((id = "5fd1a5e74a9a9a35043635e7"));
+  placeOrder(req.body, booking, total).then((orderId) => {
+    if (req.body.payment == "COD") {
+      res.json({ codSuccess: true });
+    } else {
+      generaterazorpay(orderId, total).then((response) => {
+        res.json(response);
+      });
+    }
+  });
+});
+router.post("/verify-payment", verifyuser, async (req, res) => {
+  let booking = await useroombooking();
+  verifyPayment(req.body, booking)
+    .then(() => {
+      changeStatus(req.body["order[receipt]"]).then(() => {
+        console.log("changeSTATUS" + req.body["order[receipt]"]);
+        console.log("payment Successful");
+        res.json({ status: true });
+      });
+    })
+    .catch((err) => {
+      console.log("Payment failed");
+      res.json({ status: false });
+    });
 });
 module.exports = router;

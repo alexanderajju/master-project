@@ -2,8 +2,8 @@
     <div class="container">
         <h5 class="section-head">
             <span class="checkout">
-                <h3>$: {{total}}</h3>
-                <button class="btn  checkout-btn">checkout</button>
+                <h3>₹: {{total}}</h3>
+                <a class="btn  checkout-btn" href="/place_order">Checkout</a>
             </span>
 
             <span class="heading">Booking</span>
@@ -13,6 +13,11 @@
 
 
         <div class="grid rooms-grid">
+
+
+            {{#if rooms}}
+
+
 
 
 
@@ -27,7 +32,7 @@
                             class="fas fa-trash-alt"></i></a>
 
                     <img class="room-image" src="/HOTEL/{{this._id}}.jpg" alt="" />
-                    <h5 class="room-name"> room {{this.roomnumber}}</h5>
+                    <h5 class="room-name"> {{this.hotel}}</h5>
                 </div>
                 <div class="room-info-wrap">
                     <div>
@@ -68,10 +73,53 @@
 
 
 
+            {{else}}
+            <h2 style="text-align: center; left: 0;margin-top: 50px;">Currently no booking</h2>
+            {{/if}}
+
+
+
+
+
+
+
         </div>
+
 
     </div>
 </section>
+<section>
+
+
+</section>
+<footer class="footer">
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-content-brand">
+                <a href="#" class="logo">
+                    <img src="/images/logo.png" class="logo-image" alt="" />
+                </a>
+                <p class="paragraph">
+                    What is Lorem Ipsum Lorem Ipsum is simply dummy text of the
+                    printing and typesetting industry Lorem Ipsum has been the
+                    industry's standard dummy text ever since the 1500s when an
+                </p>
+            </div>
+            <div class="social-media-wrap">
+                <h4 class="footer-heading">Follow us</h4>
+                <div class="social-media">
+                    <a href="#" class="sm-link"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="sm-link"><i class="fab fa-facebook-square"></i></a>
+                    <a href="#" class="sm-link"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="sm-link"><i class="fab fa-pinterest"></i></a>
+                    <a href="#" class="sm-link"><i class="fab fa-tripadvisor"></i></a>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
 <style>
     .bookingroom {
         color: #fff;
@@ -80,6 +128,7 @@
         z-index: 10;
         cursor: pointer
     }
+
 
     .deleteroom {
         color: #fff;

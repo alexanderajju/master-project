@@ -21,6 +21,7 @@ passport.use(
         "721804909621-rn6hq8k61kgs2ufp2snnhn4bvu44smfl.apps.googleusercontent.com",
       clientSecret: "yrrtsJqB4yFpfVbODH05r_UZ",
       callbackURL: "http://localhost:3000/google/callback",
+      
     },
     async (accessToken, refreshToken, profile, done) => {
       // User.findOrCreate({ googleId: profile.id }, function (err, profile) {

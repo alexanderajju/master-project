@@ -15,9 +15,16 @@
                 <li class="nav-item">
                     <a href="#footer" class="nav-link">About</a>
                 </li>
+                {{#if googleuser}}
                 <li class="nav-item">
                     <a href="/booking" class="nav-link">Bookings</a>
                 </li>
+                {{else}}
+                <li class="nav-item">
+                    <a href="#" class="nav-link">Bookings</a>
+                </li>
+                {{/if}}
+
                 {{#if user}}
                 <li class="nav-item">
                     <a href="/profile" class="nav-link userheader">

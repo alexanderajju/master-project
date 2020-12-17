@@ -57,7 +57,7 @@
                                             placeholder="City or Hotel">
                                         <input class="form-control" value="{{googleuser._id}}" name="userid"
                                             type="hidden" placeholder="City or Hotel">
-                                        <input class="form-control" value="{{data.Destination}}" name="Destination"
+                                        <input class="form-control" value="{{destination}}" name="Destination"
                                             type="hidden" placeholder="City or Hotel">
                                     </div>
                                 </div>
@@ -85,23 +85,13 @@
                                         <input type="button" value="+" class="form-control-button"
                                             onclick="changeQuantity('{{data.roomcount}}',1,)">+</input>
 
-                                        <input class="form-control" id="roomcount" value="{{data.roomcount}}"
-                                            name="roomcount" type="text" placeholder="City or Hotel">
+                                        <input class="form-control" id="roomcount" value="{{length}}" name="roomcount"
+                                            type="text" placeholder="City or Hotel">
 
-                                        <input type="button" disabled value="-" class="form-control-button"
-                                            id="countbutton"
+                                        <input type="button" value="-" class="form-control-button" id="countbutton"
                                             onclick="changeQuantity('{{data.roomcount}}',-1,)">-</input>
                                     </div>
 
-                                    {{!-- <div class="form-group">
-
-                                        <select name="roomcount" class="form-control">
-                                            <option value="{{data.roomcount}}">{{data.roomcount}}</option>
-                                            <option value="2">2</option>
-                                            <option value="3">3</option>
-                                        </select>
-                                        <span class="select-arrow"></span>
-                                    </div> --}}
 
                                 </div>
 

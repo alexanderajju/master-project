@@ -4,4 +4,5 @@ module.exports = {
   hotelCollection: "hotel",
   roomCollection: "rooms",
   bookingCollection: "bookings",
+  orderCollection: "orders",
 };

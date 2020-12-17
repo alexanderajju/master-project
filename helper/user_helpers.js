@@ -3,11 +3,19 @@ const {
   hotelCollection,
   roomCollection,
   bookingCollection,
+  orderCollection,
 } = require("../config/collections");
 const db = require("../config/connection");
 const Promise = require("promise");
 const bcrypt = require("bcrypt");
 const ObjectId = require("mongodb").ObjectId;
+const Razorpay = require("razorpay");
+const { resolve } = require("promise");
+
+var instance = new Razorpay({
+  key_id: "rzp_test_2wER6mnpGYCPCq",
+  key_secret: "aijrQJALtn6kCNXtUADXi8hw",
+});
 
 module.exports = {
   doSignUp: (data) => {
@@ -145,6 +153,9 @@ module.exports = {
     });
   },
   userbooking: (data, user) => {
+    console.log(data);
+    data.checkin = new Date(data.checkin);
+    data.checkout = new Date(data.checkout);
     data.roomid = ObjectId(data.roomid);
     let bookings = {
       userid: ObjectId(user._id),
@@ -193,18 +204,22 @@ module.exports = {
         .get()
         .collection(bookingCollection)
         .findOne({ userid: ObjectId(userid) });
+      if (orders) {
+        for (let index = 0; index < orders.booking.length; index++) {
+          const element = orders.booking[index];
 
-      for (let index = 0; index < orders.booking.length; index++) {
-        const element = orders.booking[index];
+          let room = await db
+            .get()
+            .collection(roomCollection)
+            .findOne({ _id: ObjectId(element.roomid) });
 
-        let room = await db
-          .get()
-          .collection(roomCollection)
-          .findOne({ _id: ObjectId(element.roomid) });
+          rooms.push(room);
+        }
 
-        rooms.push(room);
+        resolve(rooms);
+      } else {
+        resolve();
       }
-      resolve(rooms);
     });
   },
   removeBooking: (userid, roomid) => {
@@ -240,6 +255,8 @@ module.exports = {
             $project: {
               roomid: "$booking.roomid",
               hotel: "$booking.hotel",
+              checkin: "$booking.checkin",
+              checkout: "$booking.checkout",
             },
           },
           {
@@ -254,13 +271,24 @@ module.exports = {
             $project: {
               roomid: 1,
               hotel: 1,
+              dayssince: {
+                $trunc: {
+                  $divide: [
+                    { $subtract: ["$checkout", "$checkin"] },
+                    1000 * 60 * 60 * 24,
+                  ],
+                },
+              },
+              dateDifference: {
+                $trunc: { $subtract: ["$checkout", "$checkin"] },
+              },
               room: { $arrayElemAt: ["$room", 0] },
             },
           },
           {
             $group: {
               _id: null,
-              total: { $sum: "$room.price" },
+              total: { $sum: { $multiply: ["$dayssince", "$room.price"] } },
             },
           },
         ])
@@ -273,9 +301,13 @@ module.exports = {
       }
     });
   },
-  searchBook: (data, user) => {
+  searchBook: (data, user, roomcount) => {
     console.log(data);
     let roomid = [];
+    let roomlength;
+    let destination = data.Destination;
+    let roomexist;
+
     return new Promise(async (resolve, reject) => {
       let orders = await db
         .get()
@@ -291,62 +323,221 @@ module.exports = {
           roomtype: data.roomtype,
         })
         .toArray();
-      console.log(rooms);
+      console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>rooms", rooms);
+      roomlength = rooms.length;
+
       delete data.Destination;
-      for (let index = 0; index < rooms.length; index++) {
-        const element = rooms[index]._id;
-        roomid.push(element);
-      }
-
-      if (orders) {
-        console.log("booking id exists");
-        for (let index = 0; index < roomid.length; index++) {
-          data.roomid = ObjectId(roomid[index]);
-          let roomexist = orders.booking.findIndex(
-            (room) => room.roomid.toString() == roomid[index].toString()
-          );
-
-          console.log(roomexist);
-          if (roomexist != -1) {
-            console.log("room already booked");
-            resolve({ status: "Room already booked" });
-          } else {
-            db.get()
-              .collection(bookingCollection)
-              .updateOne(
-                { userid: ObjectId(user._id) },
-                { $push: { booking: data } }
-              );
-            resolve();
-          }
-          // roomid = [];
-        }
+      delete data.roomcount;
+      if (rooms.length === 0) {
+        resolve({
+          status: "no room found",
+          roomlength: roomlength,
+          destination: destination,
+          data: data,
+        });
+      } else if (rooms.length <= roomcount - 1) {
+        resolve({
+          status: "not enough room",
+          roomlength: roomlength,
+          destination: destination,
+          data: data,
+        });
       } else {
-        console.log("not found");
-        let bookings = {
-          userid: ObjectId("5fd1a5e74a9a9a35043635e6"),
-          booking: [],
-        };
-        db.get()
-          .collection(bookingCollection)
-          .insertOne(bookings)
-          .then((resposnse) => {
-            for (let index = 0; index < roomid.length; index++) {
-              data.roomid = ObjectId(roomid[index]);
+        for (let index = 0; index < roomcount; index++) {
+          const element = rooms[index]._id;
+          roomid.push(element);
+        }
+        // console.log(rooms);
+        if (orders) {
+          console.log("booking id exists");
 
+          for (let index = 0; index < roomid.length; index++) {
+            data.roomid = ObjectId(roomid[index]);
+            roomexist = orders.booking.findIndex(
+              (room) => room.roomid.toString() == roomid[index].toString()
+            );
+
+            // console.log(roomexist);
+            if (roomexist != -1) {
+              console.log("room already added");
+              resolve({
+                status: "Room already added",
+                roomlength: roomlength,
+                destination: destination,
+                data: data,
+              });
+            } else {
               db.get()
                 .collection(bookingCollection)
                 .updateOne(
                   { userid: ObjectId(user._id) },
                   { $push: { booking: data } }
                 );
+              resolve();
             }
-
-            resolve();
             // roomid = [];
-            // booking = [];
-          });
+          }
+          if (roomexist != -1) {
+            console.log("room already added");
+            // resolve({ status: "Room already added" });
+          }
+        } else {
+          console.log("not found");
+          let bookings = {
+            userid: ObjectId(user._id),
+            booking: [],
+          };
+          db.get()
+            .collection(bookingCollection)
+            .insertOne(bookings)
+            .then((resposnse) => {
+              for (let index = 0; index < roomid.length; index++) {
+                data.roomid = ObjectId(roomid[index]);
+                db.get()
+                  .collection(bookingCollection)
+                  .updateOne(
+                    { userid: ObjectId(user._id) },
+                    { $push: { booking: data } }
+                  );
+              }
+
+              resolve();
+              // roomid = [];
+              // booking = [];
+            });
+        }
       }
+    });
+  },
+  generaterazorpay: (orderId, totalPrice) => {
+    return new Promise((resolve, reject) => {
+      var options = {
+        amount: totalPrice * 100, // amount in the smallest currency unit
+        currency: "INR",
+        receipt: "" + orderId,
+      };
+      instance.orders.create(options, function (err, order) {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log("new order", order);
+          resolve(order);
+        }
+      });
+    });
+  },
+  verifyPayment: (data, booking) => {
+    return new Promise((resolve, reject) => {
+      const crypto = require("crypto");
+      let hmac = crypto.createHmac("sha256", "aijrQJALtn6kCNXtUADXi8hw");
+
+      hmac.update(
+        data["payment[razorpay_order_id]"] +
+          "|" +
+          data["payment[razorpay_payment_id]"]
+      );
+      hmac = hmac.digest("hex");
+
+      if (hmac == data["payment[razorpay_signature]"]) {
+        resolve();
+        db.get()
+          .collection(bookingCollection)
+          .removeOne({ userid: ObjectId("5fd1a5e74a9a9a35043635e7") });
+        for (let index = 0; index < booking.length; index++) {
+          const roomid = booking[index].roomid;
+          console.log(roomid);
+          db.get()
+            .collection(roomCollection)
+            .updateOne(
+              {
+                _id: ObjectId(roomid),
+              },
+              {
+                $set: {
+                  booking: true,
+                },
+              }
+            );
+          console.log(roomid + "updated");
+        }
+      } else {
+        reject();
+      }
+    });
+  },
+  changeStatus: (orderId) => {
+    return new Promise((resolve, reject) => {
+      db.get()
+        .collection(orderCollection)
+        .updateOne(
+          { _id: ObjectId(orderId) },
+          {
+            $set: {
+              status: "placed",
+            },
+          }
+        )
+        .then(() => {
+          resolve();
+        });
+    });
+  },
+  useroombooking: (id) => {
+    return new Promise(async (resolve, reject) => {
+      let orders = await db
+        .get()
+        .collection(bookingCollection)
+        .findOne({ userid: ObjectId("5fd1a5e74a9a9a35043635e7") });
+      // console.log(orders.booking);
+      resolve(orders.booking);
+    });
+  },
+  placeOrder: (order, products, total) => {
+    return new Promise((resolve, reject) => {
+      console.log(order, products, total);
+      let status = order.payment === "COD" ? "placed" : "pending";
+      let orderObject = {
+        deliveryDetails: {
+          mobile: order.mobile,
+          address: order.address,
+          pincode: order.pincode,
+        },
+        userId: ObjectId("5fd1a5e74a9a9a35043635e7"),
+        paymentMethod: order.payment,
+        products: products,
+        totalAmount: total,
+        status: status,
+        date: new Date(),
+      };
+
+      db.get()
+        .collection(orderCollection)
+        .insertOne(orderObject)
+        .then((response) => {
+          resolve(response.ops[0]._id);
+          if (order.payment === "COD") {
+            db.get()
+              .collection(bookingCollection)
+              .removeOne({ userid: ObjectId("5fd1a5e74a9a9a35043635e7") });
+            for (let index = 0; index < products.length; index++) {
+              const roomid = products[index].roomid;
+              console.log(roomid);
+              db.get()
+                .collection(roomCollection)
+                .updateOne(
+                  {
+                    _id: ObjectId(roomid),
+                  },
+                  {
+                    $set: {
+                      booking: true,
+                    },
+                  }
+                );
+              console.log(roomid + "updated");
+            }
+          }
+        });
     });
   },
 };
