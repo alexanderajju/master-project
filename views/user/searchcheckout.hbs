@@ -43,7 +43,7 @@
                                         <span></span>Executive
                                     </label>
                                     <label for="one-way">
-                                        <input type="radio" id="one-way" name="roomtype" value="Casual">
+                                        <input type="radio" checked id="one-way" name="roomtype" value="Casual">
                                         <span></span>Casual
                                     </label>
 
@@ -70,12 +70,20 @@
                                         <input class="form-control" value="{{data.checkin}}" name="checkin" type="date"
                                             required>
                                     </div>
+                                    <div class="form-group">
+                                        <span class="form-label">CHECK IN TIME</span>
+                                        <input class="form-control" name="checkintime" type="time" required>
+                                    </div>
                                 </div>
                                 <div class="col-md-3">
                                     <div class="form-group">
                                         <span class="form-label">CHECK OUT</span>
                                         <input class="form-control" value="{{data.checkout}}" name="checkout"
                                             type="date" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <span class="form-label">CHECK out TIME</span>
+                                        <input class="form-control" name="checkouttime" type="time" required>
                                     </div>
                                 </div>
 
@@ -92,16 +100,12 @@
                                             id="countbutton"
                                             onclick="changeQuantity('{{data.roomcount}}',-1,)">-</input>
                                     </div>
+                                    <div class="form-group">
+                                        <span class="form-label">Mobile</span>
+                                        <input class="form-control" name="mobile" type="tel" required>
+                                    </div>
 
-                                    {{!-- <div class="form-group">
 
-                                        <select name="roomcount" class="form-control">
-                                            <option value="{{data.roomcount}}">{{data.roomcount}}</option>
-                                            <option value="2">2</option>
-                                            <option value="3">3</option>
-                                        </select>
-                                        <span class="select-arrow"></span>
-                                    </div> --}}
 
                                 </div>
 

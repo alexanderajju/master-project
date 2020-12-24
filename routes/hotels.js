@@ -1,4 +1,3 @@
-const { response } = require("express");
 var express = require("express");
 var router = express.Router();
 const { comparearray } = require("../helper/destination_helper");
@@ -7,12 +6,19 @@ const {
   addRoom,
   hoteldestination,
   getRoom,
+  sortgetRoom,
   editFeatures,
   compareroomarray,
   editroom,
   deleteRoom,
   compareDestination,
   addhotelDestination,
+  getroombooking,
+  bookedrooms,
+  retrieveroom,
+  getuserroombooking,
+  addfine,
+  getuserfine,
 } = require("../helper/hotel_helpers");
 let fs = require("fs");
 
@@ -27,9 +33,32 @@ const verifyuser = (req, res, next) => {
 /* GET home page. */
 router.get("/", verifyuser, async (req, res, next) => {
   let hotel = req.session.user;
+
+  let response = await compareDestination(hotel._id);
   let rooms = await getRoom(req.session.hotel);
-  console.log(rooms);
-  res.render("hotels/Home", { hotel, rooms });
+  res.render("hotels/Home", {
+    hotel,
+    rooms,
+    destination: response.destination,
+  });
+});
+
+router.post("/", async (req, res) => {
+  let hotel = req.session.user;
+  let roomsresponse = await sortgetRoom(
+    req.session.hotel,
+    req.body.destination,
+    req.body.roomtype
+  );
+
+  let response = await compareDestination(hotel._id);
+  res.render("hotels/home", {
+    hotel,
+    rooms: roomsresponse.rooms,
+    place: roomsresponse.destination,
+    type: roomsresponse.type,
+    destination: response.destination,
+  });
 });
 router.get("/login", (req, res) => {
   if (req.session.hotel) {
@@ -60,7 +89,6 @@ router.get("/logout", (req, res) => {
 });
 router.get("/editfeatures", verifyuser, async (req, res) => {
   await comparearray(req.session.hotel._id).then((response) => {
-    console.log(response);
     res.render("hotels/Hotelfeatures", {
       features: response.hotel,
       notfeature: response.notfeature,
@@ -74,10 +102,9 @@ router.get("/addroom", async (req, res) => {
   res.render("hotels/addroom", { destination });
 });
 router.get("/editroom/:id", verifyuser, async (req, res) => {
-  console.log(req.params);
   if (req.params.id) {
     await compareroomarray(req.params.id).then((response) => {
-      console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>room", response.roomvalue[0]);
+      // console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>room", response.roomvalue[0]);
       res.render("hotels/editroomfeatures", {
         notfeature: response.notfeature,
         room: response.room,
@@ -89,7 +116,6 @@ router.get("/editroom/:id", verifyuser, async (req, res) => {
   }
 });
 router.post("/editroom/:id", (req, res) => {
-  console.log(req.params.id);
   if (req.params.id) {
     editroom(req.params.id, req.body).then((response) => {
       res.redirect("/hotel");
@@ -113,16 +139,12 @@ router.post("/editfeatures", (req, res) => {
   } else {
     features.push(req.body.features);
   }
-  console.log(features);
   editFeatures(req.session.hotel._id, features).then((response) => {
     res.redirect("/hotel");
   });
 });
 router.post("/addroom", (req, res) => {
-  console.log(req.body);
-  console.log(req.body.price);
   req.body.price = +req.body.price;
-  console.log(req.body);
 
   addRoom(req.body, req.session.hotel).then((id) => {
     let image = req.files.image;
@@ -161,8 +183,7 @@ router.get("/destination", verifyuser, async (req, res) => {
     });
   }
 });
-router.post("/destination/:id", (req, res) => {
-  console.log("psot>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", req.session.hotel._id);
+router.post("/destination/:id", verifyuser, (req, res) => {
   addhotelDestination(req.session.hotel._id, req.body.destination).then(
     (response) => {
       if (response.status) {
@@ -171,5 +192,41 @@ router.post("/destination/:id", (req, res) => {
     }
   );
 });
+router.get("/bookingdetails", verifyuser, async (req, res) => {
+  let room = await getroombooking(req.session.hotel);
+  res.render("hotels/bookerooms", {
+    room: room.roombooking,
+  });
+});
+router.get("/roombooked", verifyuser, async (req, res) => {
+  let rooms = await bookedrooms(req.session.hotel._id);
+  res.render("hotels/roombooked", { rooms });
+});
+router.post("/retrieveroom", verifyuser, (req, res) => {
+  retrieveroom(req.body.id).then((resposne) => {
+    res.json({ status: true });
+  });
+});
+router.get("/fine/", async (req, res) => {
+  console.log(req.query.id);
+  console.log(req.query.roomnumber);
 
+  let fine = await getuserroombooking(
+    req.query.id,
+    req.session.hotel,
+    req.query.roomnumber
+  );
+  // console.log("fine>>>>>>>>>>>>>>>>>", fine);
+  res.render("hotels/fine", { fine });
+});
+router.post("/fine", (req, res) => {
+  console.log(req.body);
+  addfine(req.body, req.session.hotel).then((response) => {
+    res.redirect("/hotel/roombooked");
+  });
+});
+router.get("/fines", async (req, res) => {
+  let fine = await getuserfine();
+  res.render("hotels/fines", { fine });
+});
 module.exports = router;

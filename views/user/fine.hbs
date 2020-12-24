@@ -1,0 +1,39 @@
+<section>
+    <div class="grid" style="margin-top: 10px;">
+        {{#if fines}}
+
+        {{#each fines}}
+        <div class="grid-item featured-hotels" data-aos="zoom-out">
+            <img src="HOTEL/{{fine.roomid}}.jpg" alt="" class="hotel-image" />
+            <h5 class="destination-name">{{fine.roomnumber}}</h5>
+            <h5 class="destination-name">Fine: {{fine.total}}</h5>
+
+            <a href="/destination?place={{this.Destination}}&id={{this._id}}" class="btn btn-gradient">Book Now
+                <span class="dots"><i class="fas fa-ellipsis-h"></i></span>
+            </a>
+
+
+
+
+        </div>
+        {{/each}}
+        {{else}}
+        {{#each fine}}
+        <div class="grid-item featured-hotels" data-aos="zoom-out">
+            <img src="HOTEL/{{fine.roomid}}.jpg" alt="" class="hotel-image" />
+            <h5 class="destination-name">{{fine.roomnumber}}</h5>
+            <h5 class="destination-name">Fine: {{fine.total}}</h5>
+
+            <a href="/destination?place={{this.Destination}}&id={{this._id}}" class="btn btn-gradient">Book Now
+                <span class="dots"><i class="fas fa-ellipsis-h"></i></span>
+            </a>
+
+
+
+
+        </div>
+        {{/each}}
+        {{/if}}
+
+    </div>
+</section>

@@ -15,8 +15,14 @@ const {
   editHotel,
   getHotel,
 } = require("../helper/hotel_helpers");
+const {
+  TotalBooking,
+  Orders,
+  deleteOrder,
+} = require("../helper/admin_helpers");
 let fs = require("fs");
 var nodemailer = require("nodemailer");
+const { response } = require("express");
 
 var router = express.Router();
 
@@ -32,6 +38,7 @@ const verifyAdmin = (req, res, next) => {
 router.get("/", verifyAdmin, async (req, res, next) => {
   let admin = req.session.admin;
   let userCount = await getusers();
+  let totalbooking = await TotalBooking();
   viewHotel().then((response) => {
     let hotelcount = Object.keys(response).length;
 
@@ -39,6 +46,7 @@ router.get("/", verifyAdmin, async (req, res, next) => {
       admin: true,
       hotelcount,
       userCount: Object.keys(userCount).length,
+      totalbooking: totalbooking,
     });
   });
 });
@@ -204,10 +212,20 @@ router.post("/edithotel/:id", (req, res) => {
 });
 router.get("/customers", async (req, res) => {
   let userCount = await getusers();
+  console.log(userCount);
   res.render("admin/customers", { userCount, admin: true });
 });
 router.post("/deleteuser", async (req, res) => {
   await deleteUser(req.body.id).then((response) => {
+    res.json({ status: true });
+  });
+});
+router.get("/orders", async (req, res) => {
+  let orders = await Orders();
+  res.render("admin/temp", { orders });
+});
+router.post("/deleteorder", async (req, res) => {
+  await deleteOrder(req.body.id).then((response) => {
     res.json({ status: true });
   });
 });

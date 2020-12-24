@@ -21,7 +21,6 @@ passport.use(
         "721804909621-rn6hq8k61kgs2ufp2snnhn4bvu44smfl.apps.googleusercontent.com",
       clientSecret: "yrrtsJqB4yFpfVbODH05r_UZ",
       callbackURL: "http://localhost:3000/google/callback",
-      
     },
     async (accessToken, refreshToken, profile, done) => {
       // User.findOrCreate({ googleId: profile.id }, function (err, profile) {
@@ -39,6 +38,7 @@ passport.use(
         return done(null, profile);
       } else {
         console.log("user doesn't exit");
+        profile._json.customer = true;
         db.get()
           .collection(userCollection)
           .insertOne(profile._json)

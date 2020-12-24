@@ -2,6 +2,8 @@ const {
   destinationCollection,
   hotelCollection,
   roomCollection,
+  orderCollection,
+  userCollection,
 } = require("../config/collections");
 const db = require("../config/connection");
 const Promise = require("promise");
@@ -9,7 +11,7 @@ const ObjectId = require("mongodb").ObjectId;
 const bcrypt = require("bcrypt");
 var generator = require("generate-password");
 let fs = require("fs");
-const { features } = require("process");
+const { resolve } = require("path");
 
 module.exports = {
   hotelsignup: (data) => {
@@ -138,12 +140,8 @@ module.exports = {
           }
         )
         .toArray();
+      console.log(hotels);
       resolve(hotels);
-    });
-  },
-  getHotel: (id, destination) => {
-    return new Promise((resolve, reject) => {
-      console.log(id, destination);
     });
   },
   editHotel: (id, data) => {
@@ -299,15 +297,42 @@ module.exports = {
   },
   getRoom: (user) => {
     return new Promise(async (resolve, reject) => {
-      console.log("user>>>>>>>>>>>>>>>>>>>>>>>>>", user._id);
+      // console.log("user>>>>>>>>>>>>>>>>>>>>>>>>>", user._id);
+
       let rooms = await db
         .get()
         .collection(roomCollection)
         .aggregate([
-          { $match: { hotel_id: ObjectId(user._id), hotel: user.username } },
+          {
+            $match: {
+              hotel_id: ObjectId(user._id),
+              hotel: user.username,
+            },
+          },
         ])
         .toArray();
       resolve(rooms);
+    });
+  },
+  sortgetRoom: (user, destination, type) => {
+    return new Promise(async (resolve, reject) => {
+      // console.log("user>>>>>>>>>>>>>>>>>>>>>>>>>", user._id);
+
+      let rooms = await db
+        .get()
+        .collection(roomCollection)
+        .aggregate([
+          {
+            $match: {
+              hotel_id: ObjectId(user._id),
+              hotel: user.username,
+              Destination: destination,
+              roomtype: type,
+            },
+          },
+        ])
+        .toArray();
+      resolve({ rooms, destination, type });
     });
   },
   compareroomarray: (id) => {
@@ -413,7 +438,7 @@ module.exports = {
         .toArray();
 
       for (let i in destination) {
-        console.log(destination[i].Destination);
+        // console.log(destination[i].Destination);
         notdestination.push(destination[i].Destination);
       }
       const removeCommon = (first, second) => {
@@ -422,12 +447,266 @@ module.exports = {
           return !(first.includes(el) && second.includes(el));
         });
       };
-      console.log("destination>>>>>>>>>>>>>>>", notdestination);
+      // console.log("destination>>>>>>>>>>>>>>>", notdestination);
       hoteldestination = hoteldestination[0].destination;
-      console.log(hoteldestination);
+      // console.log(hoteldestination);
       let value = removeCommon(hoteldestination, notdestination);
-      console.log(value);
+      // console.log(value);
       resolve({ value, destination: hoteldestination });
+    });
+  },
+  getroombooking: (hotel) => {
+    console.log(hotel);
+    return new Promise(async (resolve, reject) => {
+      let roombooking = await db
+        .get()
+        .collection(orderCollection)
+        .aggregate([
+          {
+            $match: { "products.hotel": hotel.username },
+          },
+          {
+            $project: {
+              mobile: "$deliveryDetails.mobile",
+              userId: 1,
+              room: {
+                $filter: {
+                  input: "$products",
+                  as: "product",
+                  cond: { $eq: ["$$product.hotel", hotel.username] },
+                },
+              },
+            },
+          },
+          {
+            $unwind: "$room",
+          },
+          {
+            $lookup: {
+              from: userCollection,
+              localField: "userId",
+              foreignField: "_id",
+              as: "user",
+            },
+          },
+          {
+            $unwind: "$user",
+          },
+          {
+            $project: {
+              mobile: 1,
+              room: 1,
+              username: "$user.name",
+              user_id: "$user._id",
+            },
+          },
+          {
+            $lookup: {
+              from: roomCollection,
+              localField: "room.roomid",
+              foreignField: "_id",
+              as: "roomnumber",
+            },
+          },
+          { $unwind: "$roomnumber" },
+          {
+            $project: {
+              mobile: 1,
+              room: 1,
+              username: 1,
+              user_id: 1,
+              roomnumber: "$roomnumber.roomnumber",
+              checkin: {
+                $dateToString: { format: "%Y-%m-%d", date: "$room.checkin" },
+              },
+              checkout: {
+                $dateToString: { format: "%Y-%m-%d", date: "$room.checkout" },
+              },
+            },
+          },
+        ])
+        .toArray();
+      console.log(roombooking);
+      resolve({ roombooking: roombooking });
+    });
+  },
+  bookedrooms: (id) => {
+    return new Promise(async (resolve, reject) => {
+      let rooms = await db
+        .get()
+        .collection(roomCollection)
+        .find({
+          hotel_id: ObjectId(id),
+          booking: true,
+        })
+        .toArray();
+      resolve(rooms);
+      console.log(rooms);
+    });
+  },
+  retrieveroom: (id) => {
+    return new Promise((resolve, reject) => {
+      db.get()
+        .collection(roomCollection)
+        .updateOne(
+          { _id: ObjectId(id) },
+          {
+            $set: { booking: false },
+          }
+        );
+      resolve();
+    });
+  },
+  getuserroombooking: (id, hotel, roomnumber) => {
+    console.log("id", id);
+    console.log("hotel", hotel);
+    console.log("roomnumber", roomnumber);
+    return new Promise(async (resolve, reject) => {
+      let roombooking = await db
+        .get()
+        .collection(orderCollection)
+        .aggregate([
+          {
+            $match: { userId: ObjectId(id) },
+          },
+          {
+            $project: {
+              mobile: "$deliveryDetails.mobile",
+              userId: 1,
+              room: {
+                $filter: {
+                  input: "$products",
+                  as: "product",
+                  cond: { $eq: ["$$product.hotel", hotel.username] },
+                },
+              },
+            },
+          },
+          {
+            $unwind: "$room",
+          },
+          {
+            $lookup: {
+              from: userCollection,
+              localField: "userId",
+              foreignField: "_id",
+              as: "user",
+            },
+          },
+          {
+            $unwind: "$user",
+          },
+          {
+            $project: {
+              mobile: 1,
+              room: 1,
+              username: "$user.name",
+              user_id: "$user._id",
+            },
+          },
+          {
+            $lookup: {
+              from: roomCollection,
+              localField: "room.roomid",
+              foreignField: "_id",
+              as: "roomnumber",
+            },
+          },
+          { $unwind: "$roomnumber" },
+          {
+            $project: {
+              mobile: 1,
+              room: 1,
+              username: 1,
+              user_id: 1,
+              roomnumber: "$roomnumber.roomnumber",
+              checkin: {
+                $dateToString: { format: "%Y-%m-%d", date: "$room.checkin" },
+              },
+              checkout: {
+                $dateToString: { format: "%Y-%m-%d", date: "$room.checkout" },
+              },
+            },
+          },
+          {
+            $match: { roomnumber: roomnumber },
+          },
+
+          // {
+          //   $filter: {
+          //     cond: { $eq: ["$$roomnumber", roomnumber] },
+          //   },
+          // },
+        ])
+        .toArray();
+      console.log(roombooking);
+      resolve(roombooking);
+    });
+  },
+  addfine: (data, hotel) => {
+    return new Promise((resolve, reject) => {
+      let fine = {
+        hotelname: hotel.username,
+        roomnumber: data.roomnumber,
+        total: data.total,
+        roomid: ObjectId(data.roomid),
+        status: "not paid",
+      };
+      console.log(data);
+      db.get()
+        .collection(userCollection)
+        .updateOne(
+          { _id: ObjectId(data.userid) },
+          {
+            $push: {
+              fine: fine,
+            },
+          }
+        );
+      resolve();
+    });
+  },
+  getuserfine: (id) => {
+    return new Promise(async (resolve, reject) => {
+      let fine = await db
+        .get()
+        .collection(userCollection)
+        .aggregate([
+          { $match: { "fine.hotelname": "Rajpalace" } },
+          {
+            $project: {
+              _id: 1,
+              name: 1,
+              email: 1,
+              fine: 1,
+            },
+          },
+          {
+            $unwind: "$fine",
+          },
+         
+          {
+            $project: {
+              _id: 1,
+              name: 1,
+              email: 1,
+              fine: 1,
+              roomid: "$fine.roomid",
+            },
+          },
+          {
+            $lookup: {
+              from: roomCollection,
+              localField: "roomid",
+              foreignField: "_id",
+              as: "room",
+            },
+          },
+          { $unwind: "$room" },
+        ])
+        .toArray();
+      console.log(fine);
+      resolve(fine);
     });
   },
 };

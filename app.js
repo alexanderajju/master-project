@@ -12,6 +12,7 @@ const session = require("express-session");
 const fileUpload = require("express-fileupload");
 const back = require("express-back");
 const passport = require("passport");
+const { bookingCollection } = require("./config/collections");
 require("./passport_config");
 
 var app = express();
@@ -28,6 +29,8 @@ app.engine(
     partialDir: __dirname + "/views/partials/",
   })
 );
+
+
 app.use(express.static(path.join(__dirname, "/public")));
 
 app.use(logger("dev"));
@@ -54,6 +57,26 @@ db.connect((err) => {
     console.log("Error Occured" + err);
   } else {
     console.log("[+]DB connected to port 27017");
+    async function name() {
+      let userbooking = await db
+        .get()
+        .collection(bookingCollection)
+        .aggregate([
+          {
+            $match: {
+              duetime: "2020-12-21T15:44:00.000+00:00",
+            },
+          },
+        ])
+        .toArray();
+      console.log(userbooking);
+      if (userbooking) {
+        console.log("asdsadfsdf");
+      } else {
+        console.log("not equal to zero");
+      }
+    }
+    name();
   }
 });
 

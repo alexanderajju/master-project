@@ -1,102 +1,99 @@
-<section class="admin-home">
+<section>
+    <table>
 
-    <div class="grid rooms-grid">
-        <div class="grid-item featured-rooms">
+        <thead>
+            <tr>
+                <th scope="col">Users</th>
+                <th scope="col">Hotel</th>
+                <th scope="col">Rooms</th>
+                <th scope="col">Status</th>
+                <th scope="col">Amount</th>
+                <th scope="col">Setting</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each orders}}
+            <tr>
+                <td>{{this.user}}</td>
+                <td>{{hotel}}</td>
+                <td>{{this.list_data}}</td>
+                <td>{{status}}</td>
+                <td>{{totalAmount}}</td>
+                <td><a class="buttonclick"><i onclick="deleteorder('{{this._id}}')" class="fas  fa-trash-alt"></i></a>
+                </td>
+            </tr>
 
-            <div class="image-wrap">
-                <img class="room-image" src="/images/room_1.jpg" alt="" />
-                <a href="/admin/hotels">
-                    <h5 class="room-name">Hotels</h5>
-                </a>
-                <span class="booking_details">{{hotelcount}}
-                </span>
-
-            </div>
-
-
-
-        </div>
-
-        <div class="grid-item featured-rooms">
-            <div class="image-wrap">
-                <img class="room-image" src="/images/room_1.jpg" alt="" />
-                <h5 class="room-name">Total Booking</h5>
-                <span class="booking_details">10
-                </span>
-
-            </div>
-
-        </div>
+            {{/each}}
 
 
-
-        <div class="grid-item featured-rooms">
-            <div class="image-wrap">
-                <img class="room-image" src="/images/room_1.jpg" alt="" />
-
-                <a href="admin/customers">
-                    <h5 class="room-name">Total Customers</h5>
-                </a>
-                <span class="booking_details">{{userCount}}
-                </span>
-
-            </div>
-
-        </div>
-        <div class="grid-item featured-rooms">
-            <div class="image-wrap">
-                <img class="room-image" src="/images/room_1.jpg" alt="" />
-                <h5 class="room-name">Rooms available</h5>
-                <span class="booking_details">10
-                </span>
-
-            </div>
-
-        </div>
-
-
-
-        <div class="grid-item featured-rooms">
-            <div class="image-wrap">
-                <img class="room-image" src="/images/room_1.jpg" alt="" />
-                <h5 class="room-name">Today Income</h5>
-                <span class="booking_details">10
-                </span>
-
-            </div>
-
-        </div>
-        <div class="grid-item featured-rooms">
-            <div class="image-wrap">
-                <img class="room-image" src="/images/room_1.jpg" alt="" />
-                <h5 class="room-name">Total Income</h5>
-                <span class="booking_details">10
-                </span>
-
-            </div>
-
-        </div>
-        <div class="grid-item featured-rooms">
-            <div class="image-wrap">
-                <img class="room-image" src="/images/room_1.jpg" alt="" />
-                <h5 class="room-name">Total Income</h5>
-                <span class="booking_details">10
-                </span>
-
-            </div>
-
-        </div>
-        <div class="grid-item featured-rooms">
-            <div class="image-wrap">
-                <img class="room-image" src="/images/room_1.jpg" alt="" />
-                <h5 class="room-name">Total Income</h5>
-                <span class="booking_details">10
-                </span>
-
-            </div>
-
-        </div>
-    </div>
-
-
+        </tbody>
+    </table>
 </section>
+
+<style>
+    table {
+        border: 1px solid black;
+        border-collapse: collapse;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        table-layout: fixed;
+        color: ivory;
+        border-radius: 10px;
+        margin-top: 8rem;
+    }
+
+    tr:nth-child(even) {
+        background-color: #919191;
+    }
+
+    tr:nth-child(odd) {
+        background-color: #363636;
+    }
+
+    th,
+    td {
+        padding: 15px;
+    }
+
+    table,
+    th,
+    td {
+        border: 1px solid black;
+        border-collapse: collapse;
+        text-align: center;
+    }
+
+    .buttonclick {
+        cursor: pointer;
+    }
+</style>
+<script>
+
+    function deleteorder(id) {
+
+        console.log(id)
+
+
+        if (!confirm('Are you sure?')) return false;
+        $.ajax({
+            url: "/admin/deleteorder",
+            data: {
+                id
+
+            },
+            method: 'post',
+            success: (response) => {
+                if (response.status) {
+                    location.reload()
+                } else {
+                    alert(">>>>>>")
+                }
+            }
+
+
+        })
+
+
+    }
+</script>

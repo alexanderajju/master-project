@@ -3,7 +3,7 @@ const {
   getDestination,
   comparearray,
 } = require("../helper/destination_helper");
-const { sortingHotel, compareroomarray } = require("../helper/hotel_helpers");
+const { sortingHotel } = require("../helper/hotel_helpers");
 const {
   doSignUp,
   doLogin,
@@ -19,9 +19,9 @@ const {
   generaterazorpay,
   useroombooking,
   placeOrder,
+  finedetails,
 } = require("../helper/user_helpers");
 var fs = require("fs");
-const { ifError } = require("assert");
 
 var router = express.Router();
 
@@ -177,7 +177,7 @@ router.get("/destination", async (req, res) => {
     res.render("user/hotels", { hotels });
   }
 });
-router.post("/search", verifyuser, async (req, res) => {
+router.post("/search", async (req, res) => {
   let count = 0;
   for (let index = 0; index < req.body.count.length; index++) {
     const element = +req.body.count[index];
@@ -291,8 +291,8 @@ router.post("/removebooking", verifyuser, (req, res) => {
     res.json({ status: true });
   });
 });
-router.post("/searchbooking", verifyuser, (req, res) => {
-  console.log(req.body);
+router.post("/searchbooking", (req, res) => {
+  // console.log(req.body);
   console.log(req.session.googleuser);
 
   if (req.body.roomcount == 1) {
@@ -309,15 +309,25 @@ router.post("/searchbooking", verifyuser, (req, res) => {
     });
   }
 });
-router.post("/searchcheckout", verifyuser, (req, res) => {
+router.post("/searchcheckout", (req, res) => {
   console.log(req.body);
   delete req.body.userid;
   req.body.roomcount = +req.body.roomcount;
   let googleuser = req.session.googleuser;
-  req.body.checkin = new Date(req.body.checkin);
-  req.body.checkout = new Date(req.body.checkout);
-  // console.log(googleuser);
-  console.log(req.body);
+
+  let dateobj1 = new Date(req.body.checkin + " " + req.body.checkintime);
+  let dateobj3 = new Date(req.body.checkin + " " + req.body.checkintime);
+  let dateobj2 = new Date(req.body.checkout + " " + req.body.checkouttime);
+
+  req.body.checkin = dateobj1;
+  req.body.checkout = dateobj2;
+  req.body.duetime = dateobj1;
+
+  let dt = dateobj3;
+
+  dt.setHours(dt.getHours() + 4);
+  req.body.duetime = dt;
+
   searchBook(req.body, googleuser, req.body.roomcount).then((response) => {
     console.log(response);
     if (!response) {
@@ -373,9 +383,10 @@ router.get("/place_order", verifyuser, (req, res) => {
 });
 
 router.post("/place_order", async (req, res) => {
-  let booking = await useroombooking();
-  let total = await gettotal((id = "5fd1a5e74a9a9a35043635e7"));
-  placeOrder(req.body, booking, total).then((orderId) => {
+  let googleuser = req.session.googleuser;
+  let booking = await useroombooking(googleuser._id);
+  let total = await gettotal(googleuser._id);
+  placeOrder(req.body, booking, total, googleuser._id).then((orderId) => {
     if (req.body.payment == "COD") {
       res.json({ codSuccess: true });
     } else {
@@ -386,8 +397,9 @@ router.post("/place_order", async (req, res) => {
   });
 });
 router.post("/verify-payment", verifyuser, async (req, res) => {
-  let booking = await useroombooking();
-  verifyPayment(req.body, booking)
+  let googleuser = req.session.googleuser;
+  let booking = await useroombooking(googleuser._id);
+  verifyPayment(req.body, booking, googleuser._id)
     .then(() => {
       changeStatus(req.body["order[receipt]"]).then(() => {
         console.log("changeSTATUS" + req.body["order[receipt]"]);
@@ -399,5 +411,16 @@ router.post("/verify-payment", verifyuser, async (req, res) => {
       console.log("Payment failed");
       res.json({ status: false });
     });
+});
+router.get("/fine", async (req, res) => {
+  let fine = await finedetails();
+  console.log(fine.length);
+  if (fine.length === 1) {
+    let fines = await finedetails();
+    console.log("fines", fines);
+    res.render("user/fine", { fines });
+  } else {
+    res.render("user/fine", { fine });
+  }
 });
 module.exports = router;

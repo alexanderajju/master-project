@@ -10,7 +10,7 @@ const Promise = require("promise");
 const bcrypt = require("bcrypt");
 const ObjectId = require("mongodb").ObjectId;
 const Razorpay = require("razorpay");
-const { resolve } = require("promise");
+const schedule = require("node-schedule");
 
 var instance = new Razorpay({
   key_id: "rzp_test_2wER6mnpGYCPCq",
@@ -135,11 +135,12 @@ module.exports = {
             $match: {
               hotel_id: ObjectId(id),
               Destination: hotel,
+              booking: false,
             },
           },
         ])
         .toArray();
-      console.log("rooms>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", rooms);
+
       resolve(rooms);
     });
   },
@@ -302,7 +303,8 @@ module.exports = {
     });
   },
   searchBook: (data, user, roomcount) => {
-    console.log(data);
+    // console.log(data);
+    let userid = user._id;
     let roomid = [];
     let roomlength;
     let destination = data.Destination;
@@ -323,21 +325,21 @@ module.exports = {
           roomtype: data.roomtype,
         })
         .toArray();
-      console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>rooms", rooms);
+      // console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>rooms", rooms);
       roomlength = rooms.length;
 
       delete data.Destination;
       delete data.roomcount;
       if (rooms.length === 0) {
         resolve({
-          status: "no room found",
+          status: "no room available for now please try later",
           roomlength: roomlength,
           destination: destination,
           data: data,
         });
       } else if (rooms.length <= roomcount - 1) {
         resolve({
-          status: "not enough room",
+          status: "not enough room please decrease room count",
           roomlength: roomlength,
           destination: destination,
           data: data,
@@ -373,6 +375,142 @@ module.exports = {
                   { userid: ObjectId(user._id) },
                   { $push: { booking: data } }
                 );
+
+              var date = new Date();
+              date.setMinutes(date.getMinutes() + 2);
+              // console.log(date);
+              var j = schedule.scheduleJob(date, async function () {
+                let userbooking = await db
+                  .get()
+                  .collection(bookingCollection)
+                  .findOne({ userid: ObjectId(userid) });
+
+                console.log(userbooking.userid);
+                // console.log(date);
+                console.log("scheduleJob called");
+                let products = await db
+                  .get()
+                  .collection(bookingCollection)
+                  .findOne({ userid: ObjectId(userbooking.userid) });
+
+                if (userbooking.booking.length != 0) {
+                  let total = await db
+                    .get()
+                    .collection(bookingCollection)
+                    .aggregate([
+                      {
+                        $match: {
+                          userid: ObjectId(userbooking.userid),
+                        },
+                      },
+                      {
+                        $unwind: "$booking",
+                      },
+                      {
+                        $project: {
+                          roomid: "$booking.roomid",
+                          hotel: "$booking.hotel",
+                          checkin: "$booking.checkin",
+                          checkout: "$booking.checkout",
+                        },
+                      },
+                      {
+                        $lookup: {
+                          from: roomCollection,
+                          localField: "roomid",
+                          foreignField: "_id",
+                          as: "room",
+                        },
+                      },
+                      {
+                        $project: {
+                          roomid: 1,
+                          hotel: 1,
+                          dayssince: {
+                            $trunc: {
+                              $divide: [
+                                { $subtract: ["$checkout", "$checkin"] },
+                                1000 * 60 * 60 * 24,
+                              ],
+                            },
+                          },
+                          dateDifference: {
+                            $trunc: { $subtract: ["$checkout", "$checkin"] },
+                          },
+                          room: { $arrayElemAt: ["$room", 0] },
+                        },
+                      },
+                      {
+                        $group: {
+                          _id: null,
+                          total: {
+                            $sum: {
+                              $multiply: ["$dayssince", "$room.price"],
+                            },
+                          },
+                        },
+                      },
+                    ])
+                    .toArray();
+                  // let total = await gettotal(user._id);
+                  console.log(
+                    userbooking.userid,
+                    products.booking,
+                    total[0].total
+                  );
+                  console.log("The world is going to end today.");
+
+                  let orderObject = {
+                    deliveryDetails: {
+                      mobile: data.mobile,
+                    },
+                    userId: ObjectId(userbooking.userid),
+                    paymentMethod: "COD",
+                    products: products.booking,
+                    totalAmount: total[0].total,
+                    status: "placed",
+                    date: new Date(),
+                  };
+                  console.log(orderObject);
+
+                  db.get()
+                    .collection(orderCollection)
+                    .insertOne(orderObject)
+                    .then((response) => {
+                      resolve(response.ops[0]._id);
+
+                      db.get()
+                        .collection(bookingCollection)
+                        .removeOne({
+                          userid: ObjectId(userbooking.userid),
+                        });
+                      for (
+                        let index = 0;
+                        index < products.booking.length;
+                        index++
+                      ) {
+                        const roomid = products.booking[index].roomid;
+
+                        db.get()
+                          .collection(roomCollection)
+                          .updateOne(
+                            {
+                              _id: ObjectId(roomid),
+                            },
+                            {
+                              $set: {
+                                booking: true,
+                              },
+                            }
+                          );
+                        console.log(roomid + "updated");
+                      }
+                      console.log("Order placed");
+                    });
+                } else {
+                  console.log("no booking found in the cart");
+                }
+              });
               resolve();
             }
             // roomid = [];
@@ -400,7 +538,136 @@ module.exports = {
                     { $push: { booking: data } }
                   );
               }
+              var date = new Date();
+              date.setMinutes(date.getMinutes() + 2);
+              console.log(date);
+              var j = schedule.scheduleJob(date, async function () {
+                let userbooking = await db
+                  .get()
+                  .collection(bookingCollection)
+                  .findOne({ userid: ObjectId(userid) });
 
+                console.log(userbooking.userid);
+                console.log(date);
+                console.log("scheduleJob called");
+                let products = await db
+                  .get()
+                  .collection(bookingCollection)
+                  .findOne({ userid: ObjectId(userbooking.userid) });
+                if (userbooking.booking.length != 0) {
+                  let total = await db
+                    .get()
+                    .collection(bookingCollection)
+                    .aggregate([
+                      {
+                        $match: {
+                          userid: ObjectId(userbooking.userid),
+                        },
+                      },
+                      {
+                        $unwind: "$booking",
+                      },
+                      {
+                        $project: {
+                          roomid: "$booking.roomid",
+                          hotel: "$booking.hotel",
+                          checkin: "$booking.checkin",
+                          checkout: "$booking.checkout",
+                        },
+                      },
+                      {
+                        $lookup: {
+                          from: roomCollection,
+                          localField: "roomid",
+                          foreignField: "_id",
+                          as: "room",
+                        },
+                      },
+                      {
+                        $project: {
+                          roomid: 1,
+                          hotel: 1,
+                          dayssince: {
+                            $trunc: {
+                              $divide: [
+                                { $subtract: ["$checkout", "$checkin"] },
+                                1000 * 60 * 60 * 24,
+                              ],
+                            },
+                          },
+                          dateDifference: {
+                            $trunc: { $subtract: ["$checkout", "$checkin"] },
+                          },
+                          room: { $arrayElemAt: ["$room", 0] },
+                        },
+                      },
+                      {
+                        $group: {
+                          _id: null,
+                          total: {
+                            $sum: { $multiply: ["$dayssince", "$room.price"] },
+                          },
+                        },
+                      },
+                    ])
+                    .toArray();
+                  // let total = await gettotal(user._id);
+                  console.log(
+                    userbooking.userid,
+                    products.booking,
+                    total[0].total
+                  );
+                  console.log("The world is going to end today.");
+
+                  let orderObject = {
+                    deliveryDetails: {
+                      mobile: data.mobile,
+                    },
+                    userId: ObjectId(userbooking.userid),
+                    paymentMethod: "COD",
+                    products: products.booking,
+                    totalAmount: total[0].total,
+                    status: "placed",
+                    date: new Date(),
+                  };
+                  console.log(orderObject);
+
+                  db.get()
+                    .collection(orderCollection)
+                    .insertOne(orderObject)
+                    .then((response) => {
+                      resolve(response.ops[0]._id);
+
+                      db.get()
+                        .collection(bookingCollection)
+                        .removeOne({ userid: ObjectId(userbooking.userid) });
+                      for (
+                        let index = 0;
+                        index < products.booking.length;
+                        index++
+                      ) {
+                        const roomid = products.booking[index].roomid;
+                        console.log("roomid auto call", roomid);
+                        db.get()
+                          .collection(roomCollection)
+                          .updateOne(
+                            {
+                              _id: ObjectId(roomid),
+                            },
+                            {
+                              $set: {
+                                booking: true,
+                              },
+                            }
+                          );
+                        console.log(roomid + "updated");
+                      }
+                      console.log("Order placed");
+                    });
+                } else {
+                  console.log("no booking found in the cart");
+                }
+              });
               resolve();
               // roomid = [];
               // booking = [];
@@ -426,7 +693,7 @@ module.exports = {
       });
     });
   },
-  verifyPayment: (data, booking) => {
+  verifyPayment: (data, booking, id) => {
     return new Promise((resolve, reject) => {
       const crypto = require("crypto");
       let hmac = crypto.createHmac("sha256", "aijrQJALtn6kCNXtUADXi8hw");
@@ -442,7 +709,7 @@ module.exports = {
         resolve();
         db.get()
           .collection(bookingCollection)
-          .removeOne({ userid: ObjectId("5fd1a5e74a9a9a35043635e7") });
+          .removeOne({ userid: ObjectId(id) });
         for (let index = 0; index < booking.length; index++) {
           const roomid = booking[index].roomid;
           console.log(roomid);
@@ -487,22 +754,20 @@ module.exports = {
       let orders = await db
         .get()
         .collection(bookingCollection)
-        .findOne({ userid: ObjectId("5fd1a5e74a9a9a35043635e7") });
-      // console.log(orders.booking);
+        .findOne({ userid: ObjectId(id) });
+
       resolve(orders.booking);
     });
   },
-  placeOrder: (order, products, total) => {
+  placeOrder: (order, products, total, id) => {
     return new Promise((resolve, reject) => {
       console.log(order, products, total);
       let status = order.payment === "COD" ? "placed" : "pending";
       let orderObject = {
         deliveryDetails: {
           mobile: order.mobile,
-          address: order.address,
-          pincode: order.pincode,
         },
-        userId: ObjectId("5fd1a5e74a9a9a35043635e7"),
+        userId: ObjectId(id),
         paymentMethod: order.payment,
         products: products,
         totalAmount: total,
@@ -518,7 +783,7 @@ module.exports = {
           if (order.payment === "COD") {
             db.get()
               .collection(bookingCollection)
-              .removeOne({ userid: ObjectId("5fd1a5e74a9a9a35043635e7") });
+              .removeOne({ userid: ObjectId(id) });
             for (let index = 0; index < products.length; index++) {
               const roomid = products[index].roomid;
               console.log(roomid);
@@ -538,6 +803,28 @@ module.exports = {
             }
           }
         });
+    });
+  },
+  finedetails: () => {
+    return new Promise(async (resolve, reject) => {
+      let details = await db
+        .get()
+        .collection(userCollection)
+        .aggregate([
+          { $match: { _id: ObjectId("5fdc45cd32ba2f35942692f9") } },
+          {
+            $project: {
+              fine: 1,
+            },
+          },
+          {
+            $unwind: "$fine",
+          },
+          { $match: { "fine.status": "not paid" } },
+        ])
+        .toArray();
+      console.log(details);
+      resolve(details);
     });
   },
 };

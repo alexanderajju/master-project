@@ -5,9 +5,75 @@
             <span class="sub-heading">Affordable rooms</span>
         </h5>
 
+        <form action="/hotel" method="POST" class="book-form">
+            <div class="input-group">
+
+                <select class=" options" name="destination" id="destination">
+                    {{#if place}}
+                    <option>{{place}}</option>
+                    {{else}}
+                    <option>Select</option>
+                    {{/if}}
+
+                    {{#each destination}}
+                    <option onchange="submit" value="{{this}}">{{this}}</option>
+                    {{/each}}
+                </select>
+            </div>
+            <div class="input-group">
+
+
+                <select class="selectdestination options" name="roomtype" id="roomtype">
+                    {{#if type}}
+                    <option>{{type}}</option>
+                    {{/if}}
+
+                    <option value="Casual">Casual</option>
+                    <option value="Executive">Executive</option>
+
+                </select>
+
+            </div>
+
+
+
+
+        </form>
+        {{!-- <form action="/hotel" method="post">
+            <div class="input-groups">
+                <select class=" options" name="destination" id="destination">
+                    {{#if place}}
+                    <option>{{place}}</option>
+                    {{else}}
+                    <option>Select</option>
+                    {{/if}}
+
+                    {{#each destination}}
+                    <option onchange="submit" value="{{this}}">{{this}}</option>
+                    {{/each}}
+                </select>
+                <select class="selectdestination options" name="roomtype" id="roomtype">
+                    {{#if type}}
+                    <option>{{type}}</option>
+                    {{/if}}
+
+                    <option value="Casual">Casual</option>
+                    <option value="Executive">Executive</option>
+
+                </select>
+            </div>
+
+
+
+
+
+
+
+        </form> --}}
+
+
         <div class="grid rooms-grid">
-
-
+            {{#if rooms}}
 
             {{#each rooms}}
 
@@ -57,6 +123,13 @@
             {{/each}}
 
 
+            {{else}}
+
+            <h1 style="text-align: center;">Add Rooms</h1>
+            {{/if}}
+
+
+
 
 
 
@@ -82,9 +155,36 @@
     }
 
 
+    .selectdestination {
+        margin-bottom: 10px;
+    }
 
     .hero.editroom {
         height: 100% !important;
+    }
+
+    form.book-form {
+        display: flex;
+        justify-content: flex-start;
+    }
+
+    .options {
+        outline: none;
+        border: none;
+        width: 100%;
+        min-width: 4rem;
+        padding: 1rem;
+        font-weight: bold;
+        color: #000000;
+        letter-spacing: 2px;
+        font-family: "Open Sans", sans-serif;
+        resize: none;
+        background-color: rgb(209 187 214);
+    }
+
+    .input-groups {
+        display: flex;
+
     }
 </style>
 <script>
@@ -111,4 +211,15 @@
 
         })
     }
+
+    jQuery(function () {
+        jQuery('#destination').change(function () {
+            this.form.submit();
+        });
+    })
+    jQuery(function () {
+        jQuery('#roomtype').change(function () {
+            this.form.submit();
+        });
+    })
 </script>

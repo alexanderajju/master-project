@@ -19,6 +19,10 @@
                 <li class="nav-item">
                     <a href="/booking" class="nav-link">Bookings</a>
                 </li>
+                {{else if user.hotel}}
+                <li class="nav-item">
+                    <a href="/hotel/bookingdetails" class="nav-link">Bookings</a>
+                </li>
                 {{else}}
                 <li class="nav-item">
                     <a href="#" class="nav-link">Bookings</a>
