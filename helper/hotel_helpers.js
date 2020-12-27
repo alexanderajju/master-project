@@ -4,6 +4,7 @@ const {
   roomCollection,
   orderCollection,
   userCollection,
+  fineCollection,
 } = require("../config/collections");
 const db = require("../config/connection");
 const Promise = require("promise");
@@ -647,51 +648,45 @@ module.exports = {
     return new Promise((resolve, reject) => {
       let fine = {
         hotelname: hotel.username,
+        userid: ObjectId(data.userid),
         roomnumber: data.roomnumber,
         total: data.total,
         roomid: ObjectId(data.roomid),
         status: "not paid",
       };
       console.log(data);
-      db.get()
-        .collection(userCollection)
-        .updateOne(
-          { _id: ObjectId(data.userid) },
-          {
-            $push: {
-              fine: fine,
-            },
-          }
-        );
+      db.get().collection(fineCollection).insertOne(fine);
       resolve();
     });
   },
-  getuserfine: (id) => {
+  getuserfine: (hotel) => {
+    // console.log(hotel);
     return new Promise(async (resolve, reject) => {
       let fine = await db
         .get()
-        .collection(userCollection)
+        .collection(fineCollection)
         .aggregate([
-          { $match: { "fine.hotelname": "Rajpalace" } },
+          { $match: { hotelname: hotel.username } },
+
           {
-            $project: {
-              _id: 1,
-              name: 1,
-              email: 1,
-              fine: 1,
+            $lookup: {
+              from: userCollection,
+              localField: "userid",
+              foreignField: "_id",
+              as: "user",
             },
           },
-          {
-            $unwind: "$fine",
-          },
-         
+
+          { $unwind: "$user" },
           {
             $project: {
-              _id: 1,
-              name: 1,
-              email: 1,
-              fine: 1,
-              roomid: "$fine.roomid",
+              hotelname: 1,
+              roomnumber: 1,
+              total: 1,
+              roomid: 1,
+              status: 1,
+              name: "$user.name",
+              email: "$user.email",
             },
           },
           {
@@ -702,6 +697,7 @@ module.exports = {
               as: "room",
             },
           },
+
           { $unwind: "$room" },
         ])
         .toArray();

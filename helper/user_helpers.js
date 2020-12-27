@@ -4,6 +4,8 @@ const {
   roomCollection,
   bookingCollection,
   orderCollection,
+  fineCollection,
+  finepaymentCollection,
 } = require("../config/collections");
 const db = require("../config/connection");
 const Promise = require("promise");
@@ -204,20 +206,32 @@ module.exports = {
       let orders = await db
         .get()
         .collection(bookingCollection)
-        .findOne({ userid: ObjectId(userid) });
+        .aggregate([
+          { $match: { userid: ObjectId(userid) } },
+          { $unwind: "$booking" },
+          {
+            $project: {
+              bookingTime: "$booking.bookingTime",
+              closingTime:"$booking.closingTime",
+              roomid: "$booking.roomid",
+            },
+          },
+          {
+            $lookup: {
+              from: roomCollection,
+              localField: "roomid",
+              foreignField: "_id",
+              as: "room",
+            },
+          },
+          {
+            $unwind: "$room",
+          },
+        ])
+        .toArray();
+
       if (orders) {
-        for (let index = 0; index < orders.booking.length; index++) {
-          const element = orders.booking[index];
-
-          let room = await db
-            .get()
-            .collection(roomCollection)
-            .findOne({ _id: ObjectId(element.roomid) });
-
-          rooms.push(room);
-        }
-
-        resolve(rooms);
+        resolve(orders);
       } else {
         resolve();
       }
@@ -376,141 +390,141 @@ module.exports = {
                   { $push: { booking: data } }
                 );
 
-              var date = new Date();
-              date.setMinutes(date.getMinutes() + 2);
-              // console.log(date);
-              var j = schedule.scheduleJob(date, async function () {
-                let userbooking = await db
-                  .get()
-                  .collection(bookingCollection)
-                  .findOne({ userid: ObjectId(userid) });
+              // var date = new Date();
+              // date.setMinutes(date.getMinutes() + 2);
+              // // console.log(date);
+              // var j = schedule.scheduleJob(date, async function () {
+              //   let userbooking = await db
+              //     .get()
+              //     .collection(bookingCollection)
+              //     .findOne({ userid: ObjectId(userid) });
 
-                console.log(userbooking.userid);
-                // console.log(date);
-                console.log("scheduleJob called");
-                let products = await db
-                  .get()
-                  .collection(bookingCollection)
-                  .findOne({ userid: ObjectId(userbooking.userid) });
+              //   console.log(userbooking.userid);
+              //   // console.log(date);
+              //   console.log("scheduleJob called");
+              //   let products = await db
+              //     .get()
+              //     .collection(bookingCollection)
+              //     .findOne({ userid: ObjectId(userbooking.userid) });
 
-                if (userbooking.booking.length != 0) {
-                  let total = await db
-                    .get()
-                    .collection(bookingCollection)
-                    .aggregate([
-                      {
-                        $match: {
-                          userid: ObjectId(userbooking.userid),
-                        },
-                      },
-                      {
-                        $unwind: "$booking",
-                      },
-                      {
-                        $project: {
-                          roomid: "$booking.roomid",
-                          hotel: "$booking.hotel",
-                          checkin: "$booking.checkin",
-                          checkout: "$booking.checkout",
-                        },
-                      },
-                      {
-                        $lookup: {
-                          from: roomCollection,
-                          localField: "roomid",
-                          foreignField: "_id",
-                          as: "room",
-                        },
-                      },
-                      {
-                        $project: {
-                          roomid: 1,
-                          hotel: 1,
-                          dayssince: {
-                            $trunc: {
-                              $divide: [
-                                { $subtract: ["$checkout", "$checkin"] },
-                                1000 * 60 * 60 * 24,
-                              ],
-                            },
-                          },
-                          dateDifference: {
-                            $trunc: { $subtract: ["$checkout", "$checkin"] },
-                          },
-                          room: { $arrayElemAt: ["$room", 0] },
-                        },
-                      },
-                      {
-                        $group: {
-                          _id: null,
-                          total: {
-                            $sum: {
-                              $multiply: ["$dayssince", "$room.price"],
-                            },
-                          },
-                        },
-                      },
-                    ])
-                    .toArray();
-                  // let total = await gettotal(user._id);
-                  console.log(
-                    userbooking.userid,
-                    products.booking,
-                    total[0].total
-                  );
-                  console.log("The world is going to end today.");
+              //   if (userbooking.booking.length != 0) {
+              //     let total = await db
+              //       .get()
+              //       .collection(bookingCollection)
+              //       .aggregate([
+              //         {
+              //           $match: {
+              //             userid: ObjectId(userbooking.userid),
+              //           },
+              //         },
+              //         {
+              //           $unwind: "$booking",
+              //         },
+              //         {
+              //           $project: {
+              //             roomid: "$booking.roomid",
+              //             hotel: "$booking.hotel",
+              //             checkin: "$booking.checkin",
+              //             checkout: "$booking.checkout",
+              //           },
+              //         },
+              //         {
+              //           $lookup: {
+              //             from: roomCollection,
+              //             localField: "roomid",
+              //             foreignField: "_id",
+              //             as: "room",
+              //           },
+              //         },
+              //         {
+              //           $project: {
+              //             roomid: 1,
+              //             hotel: 1,
+              //             dayssince: {
+              //               $trunc: {
+              //                 $divide: [
+              //                   { $subtract: ["$checkout", "$checkin"] },
+              //                   1000 * 60 * 60 * 24,
+              //                 ],
+              //               },
+              //             },
+              //             dateDifference: {
+              //               $trunc: { $subtract: ["$checkout", "$checkin"] },
+              //             },
+              //             room: { $arrayElemAt: ["$room", 0] },
+              //           },
+              //         },
+              //         {
+              //           $group: {
+              //             _id: null,
+              //             total: {
+              //               $sum: {
+              //                 $multiply: ["$dayssince", "$room.price"],
+              //               },
+              //             },
+              //           },
+              //         },
+              //       ])
+              //       .toArray();
+              //     // let total = await gettotal(user._id);
+              //     console.log(
+              //       userbooking.userid,
+              //       products.booking,
+              //       total[0].total
+              //     );
+              //     console.log("The world is going to end today.");
 
-                  let orderObject = {
-                    deliveryDetails: {
-                      mobile: data.mobile,
-                    },
-                    userId: ObjectId(userbooking.userid),
-                    paymentMethod: "COD",
-                    products: products.booking,
-                    totalAmount: total[0].total,
-                    status: "placed",
-                    date: new Date(),
-                  };
-                  console.log(orderObject);
+              //     let orderObject = {
+              //       deliveryDetails: {
+              //         mobile: data.mobile,
+              //       },
+              //       userId: ObjectId(userbooking.userid),
+              //       paymentMethod: "COD",
+              //       products: products.booking,
+              //       totalAmount: total[0].total,
+              //       status: "placed",
+              //       date: new Date(),
+              //     };
+              //     console.log(orderObject);
 
-                  db.get()
-                    .collection(orderCollection)
-                    .insertOne(orderObject)
-                    .then((response) => {
-                      resolve(response.ops[0]._id);
+              //     db.get()
+              //       .collection(orderCollection)
+              //       .insertOne(orderObject)
+              //       .then((response) => {
+              //         resolve(response.ops[0]._id);
 
-                      db.get()
-                        .collection(bookingCollection)
-                        .removeOne({
-                          userid: ObjectId(userbooking.userid),
-                        });
-                      for (
-                        let index = 0;
-                        index < products.booking.length;
-                        index++
-                      ) {
-                        const roomid = products.booking[index].roomid;
+              //         db.get()
+              //           .collection(bookingCollection)
+              //           .removeOne({
+              //             userid: ObjectId(userbooking.userid),
+              //           });
+              //         for (
+              //           let index = 0;
+              //           index < products.booking.length;
+              //           index++
+              //         ) {
+              //           const roomid = products.booking[index].roomid;
 
-                        db.get()
-                          .collection(roomCollection)
-                          .updateOne(
-                            {
-                              _id: ObjectId(roomid),
-                            },
-                            {
-                              $set: {
-                                booking: true,
-                              },
-                            }
-                          );
-                        console.log(roomid + "updated");
-                      }
-                      console.log("Order placed");
-                    });
-                } else {
-                  console.log("no booking found in the cart");
-                }
-              });
+              //           db.get()
+              //             .collection(roomCollection)
+              //             .updateOne(
+              //               {
+              //                 _id: ObjectId(roomid),
+              //               },
+              //               {
+              //                 $set: {
+              //                   booking: true,
+              //                 },
+              //               }
+              //             );
+              //           console.log(roomid + "updated");
+              //         }
+              //         console.log("Order placed");
+              //       });
+              //   } else {
+              //     console.log("no booking found in the cart");
+              //   }
+              // });
               resolve();
             }
             // roomid = [];
@@ -538,136 +552,136 @@ module.exports = {
                     { $push: { booking: data } }
                   );
               }
-              var date = new Date();
-              date.setMinutes(date.getMinutes() + 2);
-              console.log(date);
-              var j = schedule.scheduleJob(date, async function () {
-                let userbooking = await db
-                  .get()
-                  .collection(bookingCollection)
-                  .findOne({ userid: ObjectId(userid) });
+              // var date = new Date();
+              // date.setMinutes(date.getMinutes() + 2);
+              // console.log(date);
+              // var j = schedule.scheduleJob(date, async function () {
+              //   let userbooking = await db
+              //     .get()
+              //     .collection(bookingCollection)
+              //     .findOne({ userid: ObjectId(userid) });
 
-                console.log(userbooking.userid);
-                console.log(date);
-                console.log("scheduleJob called");
-                let products = await db
-                  .get()
-                  .collection(bookingCollection)
-                  .findOne({ userid: ObjectId(userbooking.userid) });
-                if (userbooking.booking.length != 0) {
-                  let total = await db
-                    .get()
-                    .collection(bookingCollection)
-                    .aggregate([
-                      {
-                        $match: {
-                          userid: ObjectId(userbooking.userid),
-                        },
-                      },
-                      {
-                        $unwind: "$booking",
-                      },
-                      {
-                        $project: {
-                          roomid: "$booking.roomid",
-                          hotel: "$booking.hotel",
-                          checkin: "$booking.checkin",
-                          checkout: "$booking.checkout",
-                        },
-                      },
-                      {
-                        $lookup: {
-                          from: roomCollection,
-                          localField: "roomid",
-                          foreignField: "_id",
-                          as: "room",
-                        },
-                      },
-                      {
-                        $project: {
-                          roomid: 1,
-                          hotel: 1,
-                          dayssince: {
-                            $trunc: {
-                              $divide: [
-                                { $subtract: ["$checkout", "$checkin"] },
-                                1000 * 60 * 60 * 24,
-                              ],
-                            },
-                          },
-                          dateDifference: {
-                            $trunc: { $subtract: ["$checkout", "$checkin"] },
-                          },
-                          room: { $arrayElemAt: ["$room", 0] },
-                        },
-                      },
-                      {
-                        $group: {
-                          _id: null,
-                          total: {
-                            $sum: { $multiply: ["$dayssince", "$room.price"] },
-                          },
-                        },
-                      },
-                    ])
-                    .toArray();
-                  // let total = await gettotal(user._id);
-                  console.log(
-                    userbooking.userid,
-                    products.booking,
-                    total[0].total
-                  );
-                  console.log("The world is going to end today.");
+              //   console.log(userbooking.userid);
+              //   console.log(date);
+              //   console.log("scheduleJob called");
+              //   let products = await db
+              //     .get()
+              //     .collection(bookingCollection)
+              //     .findOne({ userid: ObjectId(userbooking.userid) });
+              //   if (userbooking.booking.length != 0) {
+              //     let total = await db
+              //       .get()
+              //       .collection(bookingCollection)
+              //       .aggregate([
+              //         {
+              //           $match: {
+              //             userid: ObjectId(userbooking.userid),
+              //           },
+              //         },
+              //         {
+              //           $unwind: "$booking",
+              //         },
+              //         {
+              //           $project: {
+              //             roomid: "$booking.roomid",
+              //             hotel: "$booking.hotel",
+              //             checkin: "$booking.checkin",
+              //             checkout: "$booking.checkout",
+              //           },
+              //         },
+              //         {
+              //           $lookup: {
+              //             from: roomCollection,
+              //             localField: "roomid",
+              //             foreignField: "_id",
+              //             as: "room",
+              //           },
+              //         },
+              //         {
+              //           $project: {
+              //             roomid: 1,
+              //             hotel: 1,
+              //             dayssince: {
+              //               $trunc: {
+              //                 $divide: [
+              //                   { $subtract: ["$checkout", "$checkin"] },
+              //                   1000 * 60 * 60 * 24,
+              //                 ],
+              //               },
+              //             },
+              //             dateDifference: {
+              //               $trunc: { $subtract: ["$checkout", "$checkin"] },
+              //             },
+              //             room: { $arrayElemAt: ["$room", 0] },
+              //           },
+              //         },
+              //         {
+              //           $group: {
+              //             _id: null,
+              //             total: {
+              //               $sum: { $multiply: ["$dayssince", "$room.price"] },
+              //             },
+              //           },
+              //         },
+              //       ])
+              //       .toArray();
+              //     // let total = await gettotal(user._id);
+              //     console.log(
+              //       userbooking.userid,
+              //       products.booking,
+              //       total[0].total
+              //     );
+              //     console.log("The world is going to end today.");
 
-                  let orderObject = {
-                    deliveryDetails: {
-                      mobile: data.mobile,
-                    },
-                    userId: ObjectId(userbooking.userid),
-                    paymentMethod: "COD",
-                    products: products.booking,
-                    totalAmount: total[0].total,
-                    status: "placed",
-                    date: new Date(),
-                  };
-                  console.log(orderObject);
+              //     let orderObject = {
+              //       deliveryDetails: {
+              //         mobile: data.mobile,
+              //       },
+              //       userId: ObjectId(userbooking.userid),
+              //       paymentMethod: "COD",
+              //       products: products.booking,
+              //       totalAmount: total[0].total,
+              //       status: "placed",
+              //       date: new Date(),
+              //     };
+              //     console.log(orderObject);
 
-                  db.get()
-                    .collection(orderCollection)
-                    .insertOne(orderObject)
-                    .then((response) => {
-                      resolve(response.ops[0]._id);
+              //     db.get()
+              //       .collection(orderCollection)
+              //       .insertOne(orderObject)
+              //       .then((response) => {
+              //         resolve(response.ops[0]._id);
 
-                      db.get()
-                        .collection(bookingCollection)
-                        .removeOne({ userid: ObjectId(userbooking.userid) });
-                      for (
-                        let index = 0;
-                        index < products.booking.length;
-                        index++
-                      ) {
-                        const roomid = products.booking[index].roomid;
-                        console.log("roomid auto call", roomid);
-                        db.get()
-                          .collection(roomCollection)
-                          .updateOne(
-                            {
-                              _id: ObjectId(roomid),
-                            },
-                            {
-                              $set: {
-                                booking: true,
-                              },
-                            }
-                          );
-                        console.log(roomid + "updated");
-                      }
-                      console.log("Order placed");
-                    });
-                } else {
-                  console.log("no booking found in the cart");
-                }
-              });
+              //         db.get()
+              //           .collection(bookingCollection)
+              //           .removeOne({ userid: ObjectId(userbooking.userid) });
+              //         for (
+              //           let index = 0;
+              //           index < products.booking.length;
+              //           index++
+              //         ) {
+              //           const roomid = products.booking[index].roomid;
+              //           console.log("roomid auto call", roomid);
+              //           db.get()
+              //             .collection(roomCollection)
+              //             .updateOne(
+              //               {
+              //                 _id: ObjectId(roomid),
+              //               },
+              //               {
+              //                 $set: {
+              //                   booking: true,
+              //                 },
+              //               }
+              //             );
+              //           console.log(roomid + "updated");
+              //         }
+              //         console.log("Order placed");
+              //       });
+              //   } else {
+              //     console.log("no booking found in the cart");
+              //   }
+              // });
               resolve();
               // roomid = [];
               // booking = [];
@@ -805,26 +819,84 @@ module.exports = {
         });
     });
   },
-  finedetails: () => {
+  finedetails: (id) => {
     return new Promise(async (resolve, reject) => {
       let details = await db
         .get()
-        .collection(userCollection)
-        .aggregate([
-          { $match: { _id: ObjectId("5fdc45cd32ba2f35942692f9") } },
-          {
-            $project: {
-              fine: 1,
-            },
-          },
-          {
-            $unwind: "$fine",
-          },
-          { $match: { "fine.status": "not paid" } },
-        ])
+        .collection(fineCollection)
+        .aggregate([{ $match: { userid: ObjectId(id), status: "not paid" } }])
         .toArray();
       console.log(details);
       resolve(details);
+    });
+  },
+  fineplaceOrder: (data, id) => {
+    return new Promise((resolve, reject) => {
+      let fineObject = {
+        userid: ObjectId(id),
+        details: data,
+      };
+      db.get()
+        .collection(finepaymentCollection)
+        .insertOne(fineObject)
+        .then((response) => {
+          resolve(response.ops[0]._id);
+        });
+    });
+  },
+  finegeneraterazorpay: (orderId, totalPrice) => {
+    return new Promise((resolve, reject) => {
+      var options = {
+        amount: totalPrice * 100, // amount in the smallest currency unit
+        currency: "INR",
+        receipt: "" + orderId,
+      };
+      instance.orders.create(options, function (err, order) {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log("new order", order);
+          resolve(order);
+        }
+      });
+    });
+  },
+  fineverifyPayment: async (data, id) => {
+    return new Promise((resolve, reject) => {
+      // console.log(id);
+      console.log("fineverifyPayment");
+      const crypto = require("crypto");
+      let hmac = crypto.createHmac("sha256", "aijrQJALtn6kCNXtUADXi8hw");
+
+      hmac.update(
+        data["payment[razorpay_order_id]"] +
+          "|" +
+          data["payment[razorpay_payment_id]"]
+      );
+      hmac = hmac.digest("hex");
+
+      if (hmac == data["payment[razorpay_signature]"]) {
+        resolve();
+      } else {
+        reject();
+      }
+    });
+  },
+  changeFineStatus: (id) => {
+    return new Promise((resolve, reject) => {
+      db.get()
+        .collection(fineCollection)
+        .updateOne(
+          {
+            roomid: ObjectId(id),
+          },
+          {
+            $set: {
+              status: "paid",
+            },
+          }
+        );
+      resolve();
     });
   },
 };

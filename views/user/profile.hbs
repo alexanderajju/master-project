@@ -145,20 +145,16 @@
 
 
                     <p class="info">{{googleuser.email}}</p>
-                    <p class="info">{{googleuser.fine}}</p>
+                    {{#if fine}}
+                    <a href="/fine" style="color: green;" class="btn">
+                        <p><button>Fines</button></p>
+                    </a>
+                    {{/if}}
 
 
 
                 </div>
                 <div class="right col-lg-4">
-                    <div class="card">
-                        <img src="/images/room_1.jpg" alt="John" style="width:100%">
-                        <h1>Room 1</h1>
-                        <p class="title">Hotel Rajpalace</p>
-                        <p>banglore</p>
-                        <h5>Check in 25/12/2020</h5>
-                        <p><button>View</button></p>
-                    </div>
 
                     <div class="card">
                         <img src="/images/room_1.jpg" alt="John" style="width:100%">
@@ -168,6 +164,8 @@
                         <h5>Check in 25/12/2020</h5>
                         <p><button>View</button></p>
                     </div>
+
+
 
 
                 </div>

@@ -17,19 +17,34 @@ require("./passport_config");
 
 var app = express();
 
+let handle = hbs.create({
+  extname: "hbs",
+  defaultLayout: "layout",
+  layoutsDir: __dirname + "/views/layout/",
+  partialDir: __dirname + "/views/partials/",
+
+  helpers: {
+    calculation: function (value) {
+      return value + 7;
+    },
+    if_eq: function (val1, val2, opts) {
+      console.log("time", val1.getTime());
+      console.log("time2", val2.getTime());
+      if (val1 >= val2) {
+        console.log("called");
+        return opts.fn(this);
+      } else {
+        console.log("called else");
+        return opts.inverse(this);
+      }
+    },
+  },
+});
+
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "hbs");
-app.engine(
-  "hbs",
-  hbs({
-    extname: "hbs",
-    defaultLayout: "layout",
-    layoutsDir: __dirname + "/views/layout/",
-    partialDir: __dirname + "/views/partials/",
-  })
-);
-
+app.engine("hbs", handle.engine);
 
 app.use(express.static(path.join(__dirname, "/public")));
 

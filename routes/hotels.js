@@ -226,7 +226,7 @@ router.post("/fine", (req, res) => {
   });
 });
 router.get("/fines", async (req, res) => {
-  let fine = await getuserfine();
+  let fine = await getuserfine(req.session.hotel);
   res.render("hotels/fines", { fine });
 });
 module.exports = router;

@@ -16,34 +16,25 @@
 
 
             {{#if rooms}}
-
-
-
-
-
             {{#each rooms}}
-
-
-
+            {{#if_eq ../date ./this.closingTime }}
             <div class="grid-item featured-rooms">
 
                 <div class="image-wrap">
-                    <a onclick="bookingorder('{{this._id}}')" class="sm-link deleteroom btn  rooms-btn delete"><i
-                            class="fas fa-trash-alt"></i></a>
 
-                    <img class="room-image" src="/HOTEL/{{this._id}}.jpg" alt="" />
-                    <h5 class="room-name"> {{this.hotel}}</h5>
+                    <img class="room-image" src="/HOTEL/{{this.room._id}}.jpg" alt="" />
+                    <h5 class="room-name"> {{this.room.hotel}}</h5>
                 </div>
                 <div class="room-info-wrap">
                     <div>
-                        <span class="room-price">${{this.price}} <span class="per-night">Per Night</span>
+                        <span class="room-price">${{this.room.price}} <span class="per-night">Per Night</span>
                         </span>
 
-                        <p class="paragraph"> {{this.description}}</p>
+                        <p class="paragraph"> {{this.room.description}}</p>
 
 
                         <div class="features">
-                            {{#each this.features}}
+                            {{#each this.room.features}}
                             <h5>
                                 {{this}}
                             </h5>
@@ -61,24 +52,45 @@
                 </div>
 
             </div>
+            {{else}}
+            <div class="grid-item featured-rooms">
+                <div class="image-wrap">
+
+                    <a onclick="bookingorder('{{this.room._id}}')" class="sm-link deleteroom btn  rooms-btn delete"><i
+                            class="fas fa-trash-alt"></i></a>
+                    <img class="room-image" src="/HOTEL/{{this.room._id}}.jpg" alt="" />
+                    <h5 class="room-name"> {{this.room.hotel}}</h5>
+                </div>
+                <div class="room-info-wrap">
+                    <div>
+                        <span class="room-price">${{this.room.price}} <span class="per-night">Per Night</span>
+                        </span>
+
+                        <p class="paragraph"> {{this.room.description}}</p>
 
 
+                        <div class="features">
+                            {{#each this.room.features}}
+                            <h5>
+                                {{this}}
+                            </h5>
+                            {{/each}}
+                        </div>
 
 
+                    </div>
+
+               </div>
+
+            </div>
+
+            {{/if_eq}}
 
             {{/each}}
-
-
-
-
-
 
             {{else}}
             <h2 style="text-align: center; left: 0;margin-top: 50px;">Currently no room added</h2>
             {{/if}}
-
-
-
 
 
 
@@ -157,6 +169,7 @@
         height: 100% !important;
     }
 </style>
+
 <script>
 
     function bookingorder(id) {

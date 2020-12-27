@@ -1,39 +1,105 @@
 <section>
     <div class="grid" style="margin-top: 10px;">
-        {{#if fines}}
-
-        {{#each fines}}
-        <div class="grid-item featured-hotels" data-aos="zoom-out">
-            <img src="HOTEL/{{fine.roomid}}.jpg" alt="" class="hotel-image" />
-            <h5 class="destination-name">{{fine.roomnumber}}</h5>
-            <h5 class="destination-name">Fine: {{fine.total}}</h5>
-
-            <a href="/destination?place={{this.Destination}}&id={{this._id}}" class="btn btn-gradient">Book Now
-                <span class="dots"><i class="fas fa-ellipsis-h"></i></span>
-            </a>
-
-
-
-
-        </div>
-        {{/each}}
-        {{else}}
+        {{#if fine}}
         {{#each fine}}
-        <div class="grid-item featured-hotels" data-aos="zoom-out">
-            <img src="HOTEL/{{fine.roomid}}.jpg" alt="" class="hotel-image" />
-            <h5 class="destination-name">{{fine.roomnumber}}</h5>
-            <h5 class="destination-name">Fine: {{fine.total}}</h5>
+        <form action="" id="checkout-form">
 
-            <a href="/destination?place={{this.Destination}}&id={{this._id}}" class="btn btn-gradient">Book Now
-                <span class="dots"><i class="fas fa-ellipsis-h"></i></span>
-            </a>
+            <div class="grid-item featured-hotels" data-aos="zoom-out">
+                <img src="HOTEL/{{roomid}}.jpg" alt="" class="hotel-image" />
+                <h5 class="destination-name">{{roomnumber}}</h5>
+                <h5 class="destination-name">Fine: {{total}}</h5>
+                <input type="hidden" name="total" value="{{total}}">
+                <input type="hidden" name="roomnumber" value="{{roomnumber}}">
+                <input type="hidden" id="roomid" name="roomid" value="{{roomid}}">
+                <a href="#" class="btn btn-gradient">Pay Now
+
+                </a>
+                <button>Pay Now <span class="dots"><i class="fas fa-ellipsis-h"></i></span></button>
+
+            </div>
 
 
+        </form>
 
-
-        </div>
         {{/each}}
         {{/if}}
 
     </div>
 </section>
+<script>
+    $("#checkout-form").submit((e) => {
+        e.preventDefault()
+
+        $.ajax({
+            url: '/fine_place_order',
+            method: 'post',
+            data: $('#checkout-form').serialize(),
+            success: (response) => {
+
+                if (response.codSuccess) {
+                    location.href = "/"
+                } else {
+                    razorpayPayment(response)
+                }
+            }
+        })
+
+
+    })
+    function razorpayPayment(order) {
+
+
+
+        var options = {
+            "key": "rzp_test_2wER6mnpGYCPCq", // Enter the Key ID generated from the Dashboard
+            "amount": order.amount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+            "currency": "INR",
+            "name": "Acme Corp",
+            "description": "Test Transaction",
+            "image": "https://example.com/your_logo",
+            "order_id": order.id, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+            "handler": function (response) {
+
+
+
+                verifyPayment(response, order)
+            },
+            "prefill": {
+                "name": "Aju ALex",
+                "email": "alexanderajju@gmail.com",
+                "contact": "9400379265"
+            },
+            "notes": {
+                "address": "Razorpay Corporate Office"
+            },
+            "theme": {
+                "color": "#F37254"
+            }
+        };
+        var rzp1 = new Razorpay(options);
+        rzp1.open();
+
+    }
+
+    function verifyPayment(payment, order) {
+
+        $.ajax({
+            url: '/fine-verify-payment',
+            data: {
+                payment,
+                order,
+                roomid: document.getElementById("roomid").value
+
+
+            },
+            method: 'post',
+            success: (response) => {
+                if (response.status) {
+                    location.href = "/"
+                } else {
+                    alert("payment failed")
+                }
+            }
+        })
+    }
+</script>

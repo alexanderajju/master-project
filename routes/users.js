@@ -20,8 +20,13 @@ const {
   useroombooking,
   placeOrder,
   finedetails,
+  fineplaceOrder,
+  finegeneraterazorpay,
+  fineverifyPayment,
+  changeFineStatus,
 } = require("../helper/user_helpers");
 var fs = require("fs");
+const { response } = require("express");
 
 var router = express.Router();
 
@@ -64,10 +69,12 @@ router.get("/", async (req, res, next) => {
     });
   }
 });
-router.get("/profile", verifyuser, (req, res) => {
+router.get("/profile", verifyuser, async (req, res) => {
   if (req.session.googleuser) {
+    let fine = await finedetails(req.session.googleuser._id);
+    console.log(fine);
     let googleuser = req.session.googleuser;
-    res.render("user/profile", { googleuser });
+    res.render("user/profile", { googleuser, fine });
   } else if (req.session.user.customer) {
     let user = req.session.user;
     res.render("user/profile", { user });
@@ -280,8 +287,9 @@ router.post("/checkout", verifyuser, (req, res) => {
 router.get("/booking", verifyuser, async (req, res) => {
   let rooms = await getuserbooking(req.session.googleuser._id);
   let total = await gettotal(req.session.googleuser._id);
-  console.log(total.length);
-  res.render("user/booking", { rooms, total });
+  let date = new Date();
+
+  res.render("user/booking", { rooms: rooms, total, date });
 });
 router.post("/removebooking", verifyuser, (req, res) => {
   console.log(req.session.googleuser._id);
@@ -315,18 +323,15 @@ router.post("/searchcheckout", (req, res) => {
   req.body.roomcount = +req.body.roomcount;
   let googleuser = req.session.googleuser;
 
-  let dateobj1 = new Date(req.body.checkin + " " + req.body.checkintime);
-  let dateobj3 = new Date(req.body.checkin + " " + req.body.checkintime);
-  let dateobj2 = new Date(req.body.checkout + " " + req.body.checkouttime);
+  let dateobj1 = new Date(req.body.checkin);
+  let dateobj2 = new Date(req.body.checkout);
 
   req.body.checkin = dateobj1;
   req.body.checkout = dateobj2;
-  req.body.duetime = dateobj1;
-
-  let dt = dateobj3;
-
-  dt.setHours(dt.getHours() + 4);
-  req.body.duetime = dt;
+  req.body.bookingTime = new Date();
+  var closingTime = new Date();
+  closingTime.setHours(closingTime.getHours() + 2);
+  req.body.closingTime = closingTime;
 
   searchBook(req.body, googleuser, req.body.roomcount).then((response) => {
     console.log(response);
@@ -413,14 +418,44 @@ router.post("/verify-payment", verifyuser, async (req, res) => {
     });
 });
 router.get("/fine", async (req, res) => {
-  let fine = await finedetails();
-  console.log(fine.length);
-  if (fine.length === 1) {
-    let fines = await finedetails();
-    console.log("fines", fines);
-    res.render("user/fine", { fines });
-  } else {
-    res.render("user/fine", { fine });
-  }
+  let fine = await finedetails(req.session.googleuser._id);
+  // console.log(fine.length);
+
+  res.render("user/fine", { fine });
+});
+router.post("/fine_place_order", (req, res) => {
+  // console.log(req.body);
+  let googleuser = req.session.googleuser;
+
+  fineplaceOrder(req.body, googleuser._id).then((orderId) => {
+    finegeneraterazorpay(orderId, req.body.total).then((response) => {
+      res.json(response);
+    });
+  });
+});
+router.post("/fine-verify-payment", verifyuser, (req, res) => {
+  fineverifyPayment(req.body, req.session.googleuser._id)
+    .then(() => {
+      console.log(
+        "orders>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>",
+        req.body.roomid
+      );
+      changeFineStatus(req.body.roomid).then((response) => {
+        console.log("payment Successful");
+        res.json({ status: true });
+      });
+    })
+    .catch((err) => {
+      console.log("Payment failed");
+      res.json({ status: false });
+    });
+});
+router.get("/test", async (req, res) => {
+  let rooms = await getuserbooking("5fdc45cd32ba2f35942692f9");
+  let total = await gettotal("5fdc45cd32ba2f35942692f9");
+  console.log(rooms);
+  let date = new Date();
+
+  res.render("user/booking", { rooms: rooms, total, date });
 });
 module.exports = router;
