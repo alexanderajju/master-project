@@ -625,6 +625,9 @@ section {
   .homephoto {
     display: none;
   }
+  .usernmae {
+    display: contents;
+  }
   .features {
     display: flex;
     flex-direction: column;

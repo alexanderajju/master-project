@@ -29,20 +29,10 @@
                 </li>
                 {{/if}}
 
-                {{#if user}}
+                {{#if googleuser}}
                 <li class="nav-item">
                     <a href="/profile" class="nav-link userheader">
-                        {{#if done}}
-                        <img class="homephoto" src="/HOTEL/{{user._id}}.jpg " alt={{user.username}} />
-                        {{else}}
-                        <span>{{user.username}}</span>
-                        {{/if}}
-                    </a>
-                </li>
-                {{else if googleuser}}
-                <li class="nav-item">
-                    <a href="/profile" class="nav-link userheader">
-                        {{#if googleuser.picture}}
+                        {{#if googleuser}}
                         <img class="homephoto" src=" {{googleuser.picture}}" alt={{googleuser.name}} />
                         {{else}}
                         <span>{{googleuser.name}}</span>

@@ -1,0 +1,48 @@
+<link rel="stylesheet" href="/stylesheets/review.css">
+<section>
+    <div class="wrapper">
+        <form action="/review" method="post">
+            <div class="hotel_details">
+                <span>{{data.hotel}}</span>
+                <span>{{data.roomnumber}}</span>
+                <input type="hidden" name="hotel" value="{{data.hotel}}">
+                <input type="hidden" name="roomnumber" value="{{data.roomnumber}}">
+                <input type="hidden" name="roomid" value="{{data.roomid}}">
+            </div>
+
+            <input type="radio" name="rate" value="1" id="star-1">
+            <input type="radio" name="rate" value="2" id="star-2">
+            <input type="radio" checked name="rate" value="3" id="star-3">
+            <input type="radio" name="rate" value="4" id="star-4">
+            <input type="radio" name="rate" value="5" id="star-5">
+            <div class="content">
+                <div class="outer">
+                    <div class="emojis">
+                        <li class="slideImg"><img src="/emojis/emoji-1.png" alt=""></li>
+                        <li><img src="/emojis/emoji-2.png" alt=""></li>
+                        <li><img src="/emojis/emoji-3.png" alt=""></li>
+                        <li><img src="/emojis/emoji-4.png" alt=""></li>
+                        <li><img src="/emojis/emoji-5.png" alt=""></li>
+                    </div>
+                </div>
+                <div class="stars">
+                    <label for="star-1" class="star-1 fas fa-star"></label>
+                    <label for="star-2" class="star-2 fas fa-star"></label>
+                    <label for="star-3" class="star-3 fas fa-star"></label>
+                    <label for="star-4" class="star-4 fas fa-star"></label>
+                    <label for="star-5" class="star-5 fas fa-star"></label>
+                </div>
+                <textarea style="margin-top: 10px;" cols="30" rows="8" name="comment" placeholder="Type...."
+                    class="input"></textarea>
+                <button style="cursor: pointer;margin-top: 10px " class="btn btn-gradient">Submit</button>
+            </div>
+
+
+        </form>
+
+
+    </div>
+</section>
+<style>
+
+</style>

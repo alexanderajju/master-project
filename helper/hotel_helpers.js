@@ -5,6 +5,7 @@ const {
   orderCollection,
   userCollection,
   fineCollection,
+  reviewCollection,
 } = require("../config/collections");
 const db = require("../config/connection");
 const Promise = require("promise");
@@ -12,7 +13,6 @@ const ObjectId = require("mongodb").ObjectId;
 const bcrypt = require("bcrypt");
 var generator = require("generate-password");
 let fs = require("fs");
-const { resolve } = require("path");
 
 module.exports = {
   hotelsignup: (data) => {
@@ -141,7 +141,6 @@ module.exports = {
           }
         )
         .toArray();
-      console.log(hotels);
       resolve(hotels);
     });
   },
@@ -176,6 +175,9 @@ module.exports = {
   },
   editFeatures: (id, data) => {
     return new Promise((resolve, reject) => {
+      if (!data) {
+        console.log("no data");
+      }
       db.get()
         .collection(hotelCollection)
         .updateOne(
@@ -703,6 +705,49 @@ module.exports = {
         .toArray();
       console.log(fine);
       resolve(fine);
+    });
+  },
+  getRajpalaceReview: () => {
+    return new Promise(async (resolve, reject) => {
+      let review = await db
+        .get()
+        .collection(reviewCollection)
+        .aggregate([
+          { $match: { hotel: "Rajpalace" } },
+          {
+            $project: {
+              rate: 1,
+            },
+          },
+          {
+            $group: {
+              _id: null,
+              Totalreview: {
+                $sum: 1,
+              },
+
+              review: {
+                $sum: "$rate",
+              },
+            },
+          },
+          {
+            $project: {
+              reviewAverage: {
+                $divide: ["$review", "$Totalreview"],
+              },
+            },
+          },
+          // {
+          //   $convert: {
+          //     input: 1.9999,
+          //     to: "int",
+          //   },
+          // },
+        ])
+        .toArray();
+      console.log(Math.floor(review[0].reviewAverage));
+      resolve(Math.floor(review[0].reviewAverage));
     });
   },
 };

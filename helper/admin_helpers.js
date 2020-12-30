@@ -8,8 +8,12 @@ const {
 const db = require("../config/connection");
 const Promise = require("promise");
 const ObjectId = require("mongodb").ObjectId;
-const { resolve, reject } = require("promise");
-const { response } = require("express");
+const Razorpay = require("razorpay");
+
+var instance = new Razorpay({
+  key_id: "rzp_test_2wER6mnpGYCPCq",
+  key_secret: "aijrQJALtn6kCNXtUADXi8hw",
+});
 
 module.exports = {
   TotalBooking: () => {
@@ -128,6 +132,7 @@ module.exports = {
   },
   deleteOrder: (id) => {
     let roomidarray = [];
+    let razorpayid;
     console.log(id);
     return new Promise(async (resolve, reject) => {
       let orders = await db
@@ -138,38 +143,56 @@ module.exports = {
           { $unwind: "$products" },
           {
             $project: {
+              razorpayid: 1,
+              totalAmount: 1,
               roomid: "$products.roomid",
             },
           },
         ])
         .toArray();
-      console.log(orders.length);
-      // console.log(orders[0].roomid);
-      // console.log(orders[1].roomid);
-      for (let index = 0; index < orders.length; index++) {
-        const roomid = orders[index].roomid;
-        console.log(roomid);
-        roomidarray.push(roomid);
-        db.get()
-          .collection(roomCollection)
-          .updateOne(
-            {
-              _id: ObjectId(roomid),
-            },
-            {
-              $set: {
-                booking: false,
-              },
-            }
-          )
-          .then((response) => {
+      instance.payments
+        .refund(orders[0].razorpayid, {
+          amount: orders[0].totalAmount * 100,
+          notes: {
+            note1: "Refund will be made with in 24 hours",
+            note2: "This is a test note",
+          },
+        })
+        .then((data) => {
+          // success
+          console.log(data);
+          console.log(orders[0].totalAmount * 100);
+          razorpayid = orders[0].razorpayid;
+          for (let index = 0; index < orders.length; index++) {
+            const roomid = orders[index].roomid;
+            console.log(roomid);
+            roomidarray.push(roomid);
             db.get()
-              .collection(orderCollection)
-              .removeOne({ _id: ObjectId(id) });
-          });
-      }
-      console.log(roomidarray);
-      resolve();
+              .collection(roomCollection)
+              .updateOne(
+                {
+                  _id: ObjectId(roomid),
+                },
+                {
+                  $set: {
+                    booking: false,
+                  },
+                }
+              )
+              .then((response) => {
+                db.get()
+                  .collection(orderCollection)
+                  .removeOne({ _id: ObjectId(id) });
+              });
+          }
+
+          resolve({ notes: data.notes.note1 });
+        })
+        .catch((error) => {
+          console.error(error);
+          // error
+          resolve({ notes: error.description });
+        });
     });
   },
 };

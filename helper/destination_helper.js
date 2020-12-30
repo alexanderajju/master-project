@@ -42,47 +42,43 @@ module.exports = {
   },
   comparearray: (id) => {
     return new Promise(async (resolve, reject) => {
-      console.log("id>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", id);
-      if (id) {
-        let hotel = await db
-          .get()
-          .collection(hotelCollection)
-          .aggregate([
-            {
-              $match: { _id: ObjectId(id) },
-            },
-          ])
-          .toArray();
+      let hotel = await db
+        .get()
+        .collection(hotelCollection)
+        .aggregate([
+          {
+            $match: { _id: ObjectId(id) },
+          },
+        ])
+        .toArray();
 
-        let features = await db
-          .get()
-          .collection("features")
-          .aggregate([
-            {
-              $match: { _id: ObjectId("5fc5cd84116d1f5390c3c202") },
-            },
-          ])
-          .toArray();
+      let features = await db
+        .get()
+        .collection("features")
+        .aggregate([
+          {
+            $match: { _id: ObjectId("5fc5cd84116d1f5390c3c202") },
+          },
+        ])
+        .toArray();
 
-        // hotel = hotel[0].features;
-        features = features[0].features;
-        hotel = hotel[0].features;
-        if (hotel) {
-          const removeCommon = (first, second) => {
-            const spreaded = [...first, ...second];
-            return spreaded.filter((el) => {
-              return !(first.includes(el) && second.includes(el));
-            });
-          };
-          console.log(">>>>>>>>>>>>>>>>>>>>>", hotel);
-          console.log(features);
-          console.log(removeCommon(hotel, features));
-          let notfeature = removeCommon(hotel, features);
-          resolve({ notfeature, hotel });
-        } else {
-          let notfeature = features;
-          resolve({ notfeature, hotel });
-        }
+      features = features[0].features;
+      hotel = hotel[0].features;
+      if (hotel) {
+        const removeCommon = (first, second) => {
+          const spreaded = [...first, ...second];
+          return spreaded.filter((el) => {
+            return !(first.includes(el) && second.includes(el));
+          });
+        };
+        console.log(">>>>>>>>>>>>>>>>>>>>>", hotel);
+        console.log(features);
+        console.log(removeCommon(hotel, features));
+        let notfeature = removeCommon(hotel, features);
+        resolve({ notfeature, hotel });
+      } else {
+        let notfeature = features;
+        resolve({ notfeature, hotel });
       }
     });
   },

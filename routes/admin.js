@@ -225,8 +225,8 @@ router.get("/orders", async (req, res) => {
   res.render("admin/temp", { orders });
 });
 router.post("/deleteorder", async (req, res) => {
-  await deleteOrder(req.body.id).then((response) => {
-    res.json({ status: true });
+  await deleteOrder(req.body.id).then((resposnse) => {
+    res.json({ status: true, notes: resposnse.notes });
   });
 });
 module.exports = router;

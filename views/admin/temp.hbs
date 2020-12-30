@@ -71,10 +71,6 @@
 <script>
 
     function deleteorder(id) {
-
-        console.log(id)
-
-
         if (!confirm('Are you sure?')) return false;
         $.ajax({
             url: "/admin/deleteorder",
@@ -85,7 +81,9 @@
             method: 'post',
             success: (response) => {
                 if (response.status) {
+                    alert(response.notes)
                     location.reload()
+
                 } else {
                     alert(">>>>>>")
                 }

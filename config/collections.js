@@ -7,4 +7,5 @@ module.exports = {
   orderCollection: "orders",
   fineCollection: "fine",
   finepaymentCollection: "finepayment",
+  reviewCollection: "review",
 };

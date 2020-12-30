@@ -48,6 +48,11 @@
             font-size: 18px;
         }
 
+        div {
+            justify-content: center;
+            text-align: center;
+        }
+
         button {
             border: none;
             outline: 0;
@@ -64,6 +69,17 @@
 
         button:hover {
             opacity: 0.7;
+        }
+
+        .room {
+            display: flex;
+        }
+
+        .room::before {
+            content: "1";
+            position: absolute;
+            color: lawngreen;
+            font-weight: 200;
         }
     </style>
 </head>
@@ -89,42 +105,7 @@
 
     <div class="container">
         <header>
-            <nav class="nav">
-                <img src="" alt="">
-                <ul class="profile ">
-                    <li class="nav-item">
-                        <a href="/" class="nav-link">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">About</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">Offers</a>
-                    </li>
 
-                    <li class="nav-item">
-
-                    </li>
-
-                    {{#if user}}
-                    <li class="nav-item">
-                        <a href="/logout" class="nav-link">Logout</a>
-                    </li>
-                    {{else if googleuser}}
-                    <li class="nav-item">
-                        <a href="/logout" class="nav-link">Logout</a>
-                    </li>
-                    {{else}}
-
-                    <li class="nav-item">
-                        <a href="/login" class="nav-link">Login</a>
-                    </li>
-
-                    {{/if}}
-
-
-                </ul>
-            </nav>
         </header>
         <main>
             <div class="row">
@@ -145,25 +126,57 @@
 
 
                     <p class="info">{{googleuser.email}}</p>
-                    {{#if fine}}
-                    <a href="/fine" style="color: green;" class="btn">
-                        <p><button>Fines</button></p>
-                    </a>
-                    {{/if}}
+
 
 
 
                 </div>
-                <div class="right col-lg-4">
+                <div>
 
-                    <div class="card">
-                        <img src="/images/room_1.jpg" alt="John" style="width:100%">
-                        <h1>Room 1</h1>
-                        <p class="title">Hotel Rajpalace</p>
-                        <p>banglore</p>
-                        <h5>Check in 25/12/2020</h5>
-                        <p><button>View</button></p>
-                    </div>
+                    <a href="/" style="color: green;" class="btn">
+                        <p><button>Home</button></p>
+                    </a>
+                    <a href="#" style="color: green;" class="btn">
+                        <p><button>About</button></p>
+                    </a>
+                    {{#if rooms}}
+                    <a href="/userreview" style="color: green;" class="btn">
+                        <p class="room"><button>Rooms</button></p>
+                    </a>
+                    {{else}}
+                    <p><button>Rooms</button></p>
+                    {{/if}}
+                    {{#if fine}}
+                    <a href="/fine" style="color: green;" class="btn">
+                        <p><button>Fines</button></p>
+                    </a>
+                    {{else}}
+                    <a href="#" style="color: green;" class="btn">
+                        <p><button>Fines</button></p>
+                    </a>
+                    {{/if}}
+                    <a href="#" style="color: green;" class="btn">
+                        <p><button>Offers</button></p>
+                    </a>
+
+                    {{#if user}}
+                    <a href="/logout" style="color: green;" class="btn">
+                        <p><button>Logout</button></p>
+                    </a>
+                    <li class="nav-item">
+                        <a href="/logout" class="nav-link">Logout</a>
+                    </li>
+                    {{else if googleuser}}
+                    <a href="/logout" style="color: green;" class="btn">
+                        <p><button>Logout</button></p>
+                    </a>
+                    {{else}}
+                    <a href="/login" style="color: green;" class="btn">
+                        <p><button>login</button></p>
+                    </a>
+
+
+                    {{/if}}
 
 
 

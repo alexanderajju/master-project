@@ -3,7 +3,7 @@ const {
   getDestination,
   comparearray,
 } = require("../helper/destination_helper");
-const { sortingHotel } = require("../helper/hotel_helpers");
+const { sortingHotel, getRajpalaceReview } = require("../helper/hotel_helpers");
 const {
   doSignUp,
   doLogin,
@@ -24,9 +24,11 @@ const {
   finegeneraterazorpay,
   fineverifyPayment,
   changeFineStatus,
+  issueRefund,
+  getUserOrders,
+  userReview,
 } = require("../helper/user_helpers");
 var fs = require("fs");
-const { response } = require("express");
 
 var router = express.Router();
 
@@ -44,7 +46,7 @@ const verifyuser = (req, res, next) => {
 router.get("/", async (req, res, next) => {
   if (req.session.googleuser) {
     let googleuser = req.session.googleuser;
-    await getDestination().then((destination) => {
+    await getDestination().then(async (destination) => {
       if (googleuser) {
         res.render("user/home", { googleuser, destination });
       }
@@ -54,12 +56,10 @@ router.get("/", async (req, res, next) => {
     await getDestination().then((destination) => {
       if (user) {
         fs.readFile("./public/HOTEL/" + user._id + ".jpg", (err, done) => {
-          console.log(user._id);
           if (err) {
             console.log(err, done);
             res.render("user/home", { user, destination, done });
           } else {
-            console.log("image found", done);
             res.render("user/home", { user, destination, done });
           }
         });
@@ -72,9 +72,10 @@ router.get("/", async (req, res, next) => {
 router.get("/profile", verifyuser, async (req, res) => {
   if (req.session.googleuser) {
     let fine = await finedetails(req.session.googleuser._id);
-    console.log(fine);
+    let rooms = await getUserOrders(req.session.googleuser._id);
+
     let googleuser = req.session.googleuser;
-    res.render("user/profile", { googleuser, fine });
+    res.render("user/profile", { googleuser, fine, rooms });
   } else if (req.session.user.customer) {
     let user = req.session.user;
     res.render("user/profile", { user });
@@ -90,7 +91,6 @@ router.get("/login", (req, res) => {
   } else if (req.session.user) {
     return res.back(req.session);
   } else if (req.session.hotel) {
-    console.log(req.session.hotel);
     return res.back(req.session);
   } else if (req.session.admin) {
     return res.back(req.session);
@@ -119,8 +119,7 @@ router.post("/signup", (req, res) => {
     if (response.status) {
       req.session.user = response;
       user = req.session.user;
-      console.log("user");
-      console.log(user);
+
       req.session.loggedIn = true;
       res.render("user/home", { user });
     }
@@ -136,6 +135,7 @@ router.get("/logout", (req, res) => {
   }
 });
 router.get("/destination", async (req, res) => {
+  let rating = await getRajpalaceReview();
   if (req.session.user) {
     let user = req.session.user;
     let place = "";
@@ -151,20 +151,18 @@ router.get("/destination", async (req, res) => {
           console.log(user._id);
           if (err) {
             place = req.query.place;
-            console.log(place);
-            console.log("page called1");
-            res.render("user/hotels", { user, hotels, done, place });
+
+            // console.log(rating);
+            res.render("user/hotels", { user, hotels, done, place, rating });
           } else {
-            console.log("page called2");
             place = req.query.place;
-            res.render("user/hotels", { user, hotels, done, place });
+            res.render("user/hotels", { user, hotels, done, place, rating });
           }
         });
       } else {
         console.log("page called");
         place = req.query.place;
-        console.log(place);
-        res.render("user/hotels", { hotels, user, place });
+        res.render("user/hotels", { hotels, user, place, rating });
       }
     }
   } else if (req.session.googleuser) {
@@ -174,14 +172,14 @@ router.get("/destination", async (req, res) => {
         place = req.query.place;
         id = req.query.id;
         hotels = await sortingHotel(place, id);
-        res.render("user/hotels", { googleuser, hotels, place });
+        res.render("user/hotels", { googleuser, hotels, place, rating });
       }
     }
   } else {
     place = req.query.place;
     id = req.query.id;
     hotels = await sortingHotel(place, id);
-    res.render("user/hotels", { hotels });
+    res.render("user/hotels", { hotels, rating });
   }
 });
 router.post("/search", async (req, res) => {
@@ -201,9 +199,7 @@ router.post("/search", async (req, res) => {
   }
   // req.body.roomcount = roomcount.toFixed(); //it will give string
   req.body.roomcount = Math.trunc(roomcount); //it will give integer
-  // res.send(req.body);
-  console.log(roomcount);
-  console.log(req.body);
+
   let destinations = await getDestination();
   let hotels = "";
   if (req.body.Destination) {
@@ -222,7 +218,6 @@ router.get("/viewrooms", verifyuser, async (req, res) => {
     let rooms = "";
     let user = req.session.user;
     if (req.query.id) {
-      console.log("req>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", req.query.hotel);
       rooms = await getRoom(req.query.id, req.query.hotel);
       feature = await comparearray(req.query.id);
       if (user) {
@@ -252,7 +247,6 @@ router.get("/viewrooms", verifyuser, async (req, res) => {
         });
       }
     } else {
-      console.log(rooms);
       let user = req.session.user;
       res.render("user/viewrooms", { rooms, user });
     }
@@ -280,7 +274,6 @@ router.get("/checkout", verifyuser, async (req, res) => {
 });
 router.post("/checkout", verifyuser, (req, res) => {
   userbooking(req.body, req.session.googleuser).then((response) => {
-    console.log(response);
     res.redirect("/");
   });
 });
@@ -292,16 +285,12 @@ router.get("/booking", verifyuser, async (req, res) => {
   res.render("user/booking", { rooms: rooms, total, date });
 });
 router.post("/removebooking", verifyuser, (req, res) => {
-  console.log(req.session.googleuser._id);
-  console.log(req.body.id);
-
   removeBooking(req.session.googleuser._id, req.body.id).then((resposnse) => {
     res.json({ status: true });
   });
 });
 router.post("/searchbooking", (req, res) => {
   // console.log(req.body);
-  console.log(req.session.googleuser);
 
   if (req.body.roomcount == 1) {
     console.log("called rrom=1");
@@ -318,7 +307,6 @@ router.post("/searchbooking", (req, res) => {
   }
 });
 router.post("/searchcheckout", (req, res) => {
-  console.log(req.body);
   delete req.body.userid;
   req.body.roomcount = +req.body.roomcount;
   let googleuser = req.session.googleuser;
@@ -334,7 +322,6 @@ router.post("/searchcheckout", (req, res) => {
   req.body.closingTime = closingTime;
 
   searchBook(req.body, googleuser, req.body.roomcount).then((response) => {
-    console.log(response);
     if (!response) {
       res.redirect("/");
     }
@@ -405,8 +392,8 @@ router.post("/verify-payment", verifyuser, async (req, res) => {
   let googleuser = req.session.googleuser;
   let booking = await useroombooking(googleuser._id);
   verifyPayment(req.body, booking, googleuser._id)
-    .then(() => {
-      changeStatus(req.body["order[receipt]"]).then(() => {
+    .then((razorpayid) => {
+      changeStatus(req.body["order[receipt]"], razorpayid).then(() => {
         console.log("changeSTATUS" + req.body["order[receipt]"]);
         console.log("payment Successful");
         res.json({ status: true });
@@ -436,10 +423,6 @@ router.post("/fine_place_order", (req, res) => {
 router.post("/fine-verify-payment", verifyuser, (req, res) => {
   fineverifyPayment(req.body, req.session.googleuser._id)
     .then(() => {
-      console.log(
-        "orders>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>",
-        req.body.roomid
-      );
       changeFineStatus(req.body.roomid).then((response) => {
         console.log("payment Successful");
         res.json({ status: true });
@@ -450,12 +433,20 @@ router.post("/fine-verify-payment", verifyuser, (req, res) => {
       res.json({ status: false });
     });
 });
-router.get("/test", async (req, res) => {
-  let rooms = await getuserbooking("5fdc45cd32ba2f35942692f9");
-  let total = await gettotal("5fdc45cd32ba2f35942692f9");
-  console.log(rooms);
-  let date = new Date();
+router.get("/userreview", async (req, res) => {
+  let rooms = await getUserOrders(req.session.googleuser._id);
 
-  res.render("user/booking", { rooms: rooms, total, date });
+  res.render("user/roombooked", { rooms });
+});
+router.post("/userreview", (req, res) => {
+  res.render("user/review", { data: req.body });
+});
+router.post("/review", (req, res) => {
+  userReview(req.body, req.session.googleuser._id).then((response) => {
+    res.redirect("/profile");
+  });
+});
+router.get("/test", (req, res) => {
+  comparearray();
 });
 module.exports = router;
