@@ -75,11 +75,12 @@
             display: flex;
         }
 
-        .room::before {
+        .room::after {
             content: "1";
             position: absolute;
-            color: lawngreen;
-            font-weight: 200;
+            color: black;
+            background-color: lawngreen;
+
         }
     </style>
 </head>
@@ -148,7 +149,7 @@
                     {{/if}}
                     {{#if fine}}
                     <a href="/fine" style="color: green;" class="btn">
-                        <p><button>Fines</button></p>
+                        <p class="room"><button>Fines</button></p>
                     </a>
                     {{else}}
                     <a href="#" style="color: green;" class="btn">

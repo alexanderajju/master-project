@@ -19,10 +19,11 @@ const {
   TotalBooking,
   Orders,
   deleteOrder,
+  getallreview,
+  deletereview,
 } = require("../helper/admin_helpers");
 let fs = require("fs");
 var nodemailer = require("nodemailer");
-const { response } = require("express");
 
 var router = express.Router();
 
@@ -227,6 +228,16 @@ router.get("/orders", async (req, res) => {
 router.post("/deleteorder", async (req, res) => {
   await deleteOrder(req.body.id).then((resposnse) => {
     res.json({ status: true, notes: resposnse.notes });
+  });
+});
+router.get("/deletecomment", (req, res) => {
+  getallreview().then((response) => {
+    res.render("admin/review", { response });
+  });
+});
+router.post("/deletecomment", (req, res) => {
+  deletereview(req.body.id).then((resposnse) => {
+    res.json({ status: true });
   });
 });
 module.exports = router;

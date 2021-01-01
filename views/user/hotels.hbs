@@ -15,12 +15,21 @@
 
                 <span class="hotel-price">$ 200 per nights</span>
 
-                <div class="hotel-rating">
-                    <i class="fas fa-star rating"></i>
-                    <i class="fas fa-star rating"></i>
-                    <i class="fas fa-star rating"></i>
-                    <i class="fas fa-star rating"></i>
-                    <i class="fas fa-star-half rating"></i>
+
+                <div>
+                    {{#if_equals count 0}}
+                        <i class="fas fa-star rating"></i>
+                        <i class="fas fa-star rating"></i>
+                        <i class="fas fa-star rating"></i>
+                        <i class="fas fa-star rating"></i>
+                        <i class="fas fa-star-half rating"></i>
+                 
+                    {{else}}
+                    {{#renderStars rating}}
+
+                    {{/renderStars}}
+                    {{/if_equals }}
+
                 </div>
 
                 <a href="/viewrooms/?id={{this._id}}&hotel={{../place}}" class="btn btn-gradient">Book Now

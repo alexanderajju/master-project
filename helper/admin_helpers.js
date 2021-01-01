@@ -4,11 +4,13 @@ const {
   roomCollection,
   bookingCollection,
   orderCollection,
+  reviewCollection,
 } = require("../config/collections");
 const db = require("../config/connection");
 const Promise = require("promise");
 const ObjectId = require("mongodb").ObjectId;
 const Razorpay = require("razorpay");
+const { response } = require("../app");
 
 var instance = new Razorpay({
   key_id: "rzp_test_2wER6mnpGYCPCq",
@@ -192,6 +194,28 @@ module.exports = {
           console.error(error);
           // error
           resolve({ notes: error.description });
+        });
+    });
+  },
+  getallreview: () => {
+    return new Promise(async (resolve, reject) => {
+      let reviews = await db
+        .get()
+        .collection(reviewCollection)
+        .find()
+        .toArray();
+      console.log(reviews);
+      resolve(reviews);
+    });
+  },
+  deletereview: (id) => {
+    return new Promise((resolve, reject) => {
+      console.log(id);
+      db.get()
+        .collection(reviewCollection)
+        .removeOne({ _id: ObjectId(id) })
+        .then((response) => {
+          resolve();
         });
     });
   },

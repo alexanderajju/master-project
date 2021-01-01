@@ -3,7 +3,11 @@ const {
   getDestination,
   comparearray,
 } = require("../helper/destination_helper");
-const { sortingHotel, getRajpalaceReview } = require("../helper/hotel_helpers");
+const {
+  sortingHotel,
+  getRajpalaceReview,
+  getHotelReview,
+} = require("../helper/hotel_helpers");
 const {
   doSignUp,
   doLogin,
@@ -24,9 +28,10 @@ const {
   finegeneraterazorpay,
   fineverifyPayment,
   changeFineStatus,
-  issueRefund,
+  getUserreview,
   getUserOrders,
   userReview,
+  editReview,
 } = require("../helper/user_helpers");
 var fs = require("fs");
 
@@ -135,7 +140,6 @@ router.get("/logout", (req, res) => {
   }
 });
 router.get("/destination", async (req, res) => {
-  let rating = await getRajpalaceReview();
   if (req.session.user) {
     let user = req.session.user;
     let place = "";
@@ -153,16 +157,16 @@ router.get("/destination", async (req, res) => {
             place = req.query.place;
 
             // console.log(rating);
-            res.render("user/hotels", { user, hotels, done, place, rating });
+            res.render("user/hotels", { user, hotels, done, place });
           } else {
             place = req.query.place;
-            res.render("user/hotels", { user, hotels, done, place, rating });
+            res.render("user/hotels", { user, hotels, done, place });
           }
         });
       } else {
         console.log("page called");
         place = req.query.place;
-        res.render("user/hotels", { hotels, user, place, rating });
+        res.render("user/hotels", { hotels, user, place });
       }
     }
   } else if (req.session.googleuser) {
@@ -172,14 +176,16 @@ router.get("/destination", async (req, res) => {
         place = req.query.place;
         id = req.query.id;
         hotels = await sortingHotel(place, id);
-        res.render("user/hotels", { googleuser, hotels, place, rating });
+        console.log(hotels);
+        res.render("user/hotels", { googleuser, hotels, place });
       }
     }
   } else {
     place = req.query.place;
     id = req.query.id;
     hotels = await sortingHotel(place, id);
-    res.render("user/hotels", { hotels, rating });
+    console.log(hotels);
+    res.render("user/hotels", { hotels });
   }
 });
 router.post("/search", async (req, res) => {
@@ -255,16 +261,17 @@ router.get("/viewrooms", verifyuser, async (req, res) => {
       let googleuser = req.session.googleuser;
       rooms = await getRoom(req.query.id, req.query.hotel);
       feature = await comparearray(req.query.id);
-
+      console.log(req.query);
       res.render("user/viewrooms", {
         rooms,
         feature: feature.hotel,
         googleuser,
+        query: req.query,
       });
     }
   }
 });
-router.get("/favico.ico", (req, res) => {
+router.get("/favico.ico", verifyuser, (req, res) => {
   res.redirect("/");
 });
 router.get("/checkout", verifyuser, async (req, res) => {
@@ -273,9 +280,24 @@ router.get("/checkout", verifyuser, async (req, res) => {
   res.render("user/checkout", { room });
 });
 router.post("/checkout", verifyuser, (req, res) => {
-  userbooking(req.body, req.session.googleuser).then((response) => {
-    res.redirect("/");
-  });
+  console.log(req.body);
+  let totalcount = parseInt(req.body.adults) + parseInt(req.body.children);
+  req.body.bookingTime = new Date();
+  var closingTime = new Date();
+  closingTime.setHours(closingTime.getHours() + 2);
+  req.body.closingTime = closingTime;
+
+  if (totalcount > 3) {
+    res.render("user/checkout", {
+      err: "Not more than 3 people",
+      room: req.body,
+    });
+  } else {
+    console.log(req.session.googleuser);
+    userbooking(req.body, req.session.googleuser).then((response) => {
+      res.redirect("/");
+    });
+  }
 });
 router.get("/booking", verifyuser, async (req, res) => {
   let rooms = await getuserbooking(req.session.googleuser._id);
@@ -289,7 +311,7 @@ router.post("/removebooking", verifyuser, (req, res) => {
     res.json({ status: true });
   });
 });
-router.post("/searchbooking", (req, res) => {
+router.post("/searchbooking", verifyuser, (req, res) => {
   // console.log(req.body);
 
   if (req.body.roomcount == 1) {
@@ -306,7 +328,7 @@ router.post("/searchbooking", (req, res) => {
     });
   }
 });
-router.post("/searchcheckout", (req, res) => {
+router.post("/searchcheckout", verifyuser, (req, res) => {
   delete req.body.userid;
   req.body.roomcount = +req.body.roomcount;
   let googleuser = req.session.googleuser;
@@ -320,7 +342,7 @@ router.post("/searchcheckout", (req, res) => {
   var closingTime = new Date();
   closingTime.setHours(closingTime.getHours() + 2);
   req.body.closingTime = closingTime;
-
+  console.log(req.body);
   searchBook(req.body, googleuser, req.body.roomcount).then((response) => {
     if (!response) {
       res.redirect("/");
@@ -374,7 +396,7 @@ router.get("/place_order", verifyuser, (req, res) => {
   res.render("user/placeOrder");
 });
 
-router.post("/place_order", async (req, res) => {
+router.post("/place_order", verifyuser, async (req, res) => {
   let googleuser = req.session.googleuser;
   let booking = await useroombooking(googleuser._id);
   let total = await gettotal(googleuser._id);
@@ -404,13 +426,13 @@ router.post("/verify-payment", verifyuser, async (req, res) => {
       res.json({ status: false });
     });
 });
-router.get("/fine", async (req, res) => {
+router.get("/fine", verifyuser, async (req, res) => {
   let fine = await finedetails(req.session.googleuser._id);
   // console.log(fine.length);
 
   res.render("user/fine", { fine });
 });
-router.post("/fine_place_order", (req, res) => {
+router.post("/fine_place_order", verifyuser, (req, res) => {
   // console.log(req.body);
   let googleuser = req.session.googleuser;
 
@@ -433,20 +455,37 @@ router.post("/fine-verify-payment", verifyuser, (req, res) => {
       res.json({ status: false });
     });
 });
-router.get("/userreview", async (req, res) => {
+router.get("/userreview", verifyuser, async (req, res) => {
   let rooms = await getUserOrders(req.session.googleuser._id);
 
   res.render("user/roombooked", { rooms });
 });
-router.post("/userreview", (req, res) => {
+router.post("/userreview", verifyuser, (req, res) => {
+  console.log(req.body);
   res.render("user/review", { data: req.body });
 });
-router.post("/review", (req, res) => {
+router.post("/review", verifyuser, (req, res) => {
+  console.log(req.body);
   userReview(req.body, req.session.googleuser._id).then((response) => {
     res.redirect("/profile");
   });
 });
+router.get("/hotelReview", verifyuser, async (req, res) => {
+  // res.send(req.query);
+  let review = await getHotelReview(req.query);
+  res.render("user/hotelReview", { review });
+});
+router.post("/edituserreview", verifyuser, (req, res) => {
+  getUserreview(req.body, req.session.googleuser._id).then((response) => {
+    res.render("user/editReview", { data: response[0] });
+  });
+});
+router.put("/review", verifyuser, (req, res) => {
+  editReview(req.body, req.session.googleuser._id).then(() => {
+    res.json({ status: true });
+  });
+});
 router.get("/test", (req, res) => {
-  comparearray();
+  gettotal((id = "5fdc45cd32ba2f35942692f9"));
 });
 module.exports = router;

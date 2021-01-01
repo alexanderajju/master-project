@@ -625,6 +625,9 @@ section {
   .homephoto {
     display: none;
   }
+  .homephotoname {
+    display: contents;
+  }
   .usernmae {
     display: contents;
   }
@@ -638,6 +641,9 @@ section {
 @media screen and (min-width: 1000px) {
   section:not(.booking) {
     padding: 10rem 0;
+  }
+  .homephotoname {
+    display: none;
   }
   .homephoto {
     border-radius: 50%;

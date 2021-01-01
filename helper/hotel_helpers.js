@@ -134,13 +134,53 @@ module.exports = {
       let hotels = await db
         .get()
         .collection(hotelCollection)
-        .aggregate(
+        .aggregate([
           { $match: { destination: destination } },
           {
-            $unwind: "$hotels",
-          }
-        )
+            $lookup: {
+              from: reviewCollection,
+              localField: "username",
+              foreignField: "hotel",
+              as: "review",
+            },
+          },
+          {
+            $project: {
+              Name: 1,
+              username: 1,
+              Destination: 1,
+              review: 1,
+            },
+          },
+          {
+            $project: {
+              Name: 1,
+              username: 1,
+              Destination: 1,
+              review: 1,
+              rate: {
+                $reduce: {
+                  input: "$review.rate",
+                  initialValue: 0,
+                  in: { $sum: ["$$value", "$$this"] },
+                },
+              },
+            },
+          },
+        ])
         .toArray();
+
+      for (let index = 0; index < hotels.length; index++) {
+        hotels[index].count = hotels[index].review.length;
+        hotels[index].review.length === 0
+          ? (hotels[index].review.length = 1)
+          : hotels[index].review.length;
+        hotels[index].ratecount = hotels[index].review.length;
+        hotels[index].rating = Math.floor(
+          hotels[index].rate / hotels[index].review.length
+        );
+      }
+      console.log(hotels);
       resolve(hotels);
     });
   },
@@ -748,6 +788,44 @@ module.exports = {
         .toArray();
       console.log(Math.floor(review[0].reviewAverage));
       resolve(Math.floor(review[0].reviewAverage));
+    });
+  },
+  getHotelReview: (data) => {
+    console.log(data);
+    return new Promise(async (resolve, reject) => {
+      let review = await db
+        .get()
+        .collection(hotelCollection)
+        .aggregate([
+          { $match: { _id: ObjectId(data.id) } },
+          {
+            $project: {
+              username: 1,
+            },
+          },
+          {
+            $lookup: {
+              from: reviewCollection,
+              localField: "username",
+              foreignField: "hotel",
+              as: "review",
+            },
+          },
+          { $unwind: "$review" },
+          {
+            $match: {
+              "review.destination": data.hotel,
+            },
+          },
+          {
+            $project: {
+              review: 1,
+            },
+          },
+        ])
+        .toArray();
+      console.log(review);
+      resolve(review);
     });
   },
 };

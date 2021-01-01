@@ -134,15 +134,14 @@ router.post("/editfeatures", (req, res) => {
   console.log(req.body);
   let features = [];
   if (Array.isArray(req.body.features)) {
-    console.log("called 1");
     for (let i = 0; i < req.body.features.length; i++) {
       features.push(req.body.features[i]);
     }
   } else if (req.body.features) {
-    console.log("called 2");
+    
     features.push(req.body.features);
   } else {
-    console.log("called 3");
+    
     features;
   }
   editFeatures(req.session.hotel._id, features).then((response) => {

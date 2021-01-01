@@ -1,0 +1,30 @@
+<section>
+
+</section>
+<div class="grid">
+
+    {{#each review}}
+    <div class="grid-item featured-hotels" data-aos="zoom-out">
+        <img src="/HOTEL/{{this.review.roomid}}.jpg" alt="" class="hotel-image" />
+        <div class="stars">
+            {{#renderStars this.review.rate}}
+            {{/renderStars}}
+        </div>
+
+        <h5 class="destination-name">{{this.review.comment}}</h5>
+        {{!-- <a href="/destination?place={{this.Destination}}&id={{this._id}}" class="btn btn-gradient">Book Now
+            <span class="dots"><i class="fas fa-ellipsis-h"></i></span>
+        </a> --}}
+    </div>
+    {{/each}}
+
+
+
+
+
+</div>
+<style>
+    .checked {
+        color: gold;
+    }
+</style>

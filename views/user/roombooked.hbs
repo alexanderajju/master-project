@@ -1,24 +1,56 @@
 <section>
     <div class="grid" style="margin-top: 10px;">
         {{#if rooms}}
+
+
         {{#each rooms}}
-        <form action="/userreview" method="POST" id="checkout-form">
+        {{#if user}}
+        <form action="/edituserreview" method="POST" id="checkout-form">
 
             <div class="grid-item featured-hotels" data-aos="zoom-out">
                 <img src="/HOTEL/{{products.roomid}}.jpg" alt="" class="hotel-image" />
-                <h5 class="destination-name">{{products.hotel}}</h5>
+                <h5 class="destination-name">{{products.hotel}}, {{products.Destination}}</h5>
                 <h5 class="destination-name">{{products.roomtype}}: {{roomnumber}}</h5>
                 <input type="hidden" name="hotel" value="{{products.hotel}}">
                 <input type="hidden" name="roomtype" value="{{products.roomtype}}">
                 <input type="hidden" name="roomnumber" value="{{roomnumber}}">
+                <input type="hidden" name="destination" value="{{products.Destination}}">
                 <input type="hidden" id="roomid" name="roomid" value="{{products.roomid}}">
-                <button style="cursor: pointer;" class="btn btn-gradient">Pay Now <span class="dots"><i
+
+                <button style="cursor: pointer;" class="btn btn-gradient">Edit Review<span class="dots"><i
                             class="fas fa-ellipsis-h "></i></span></button>
+
+
 
             </div>
 
 
         </form>
+        {{else}}
+
+        <form action="/userreview" method="POST" id="checkout-form">
+
+            <div class="grid-item featured-hotels" data-aos="zoom-out">
+                <img src="/HOTEL/{{products.roomid}}.jpg" alt="" class="hotel-image" />
+                <h5 class="destination-name">{{products.hotel}}, {{products.Destination}}</h5>
+                <h5 class="destination-name">{{products.roomtype}}: {{roomnumber}}</h5>
+                <input type="hidden" name="hotel" value="{{products.hotel}}">
+                <input type="hidden" name="roomtype" value="{{products.roomtype}}">
+                <input type="hidden" name="roomnumber" value="{{roomnumber}}">
+                <input type="hidden" name="destination" value="{{products.Destination}}">
+                <input type="hidden" id="roomid" name="roomid" value="{{products.roomid}}">
+
+                <button style="cursor: pointer;" class="btn btn-gradient">Review Room <span class="dots"><i
+                            class="fas fa-ellipsis-h "></i></span></button>
+
+
+
+            </div>
+
+
+        </form>
+        {{/if}}
+
 
         {{/each}}
         {{/if}}

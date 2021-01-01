@@ -35,6 +35,7 @@
                 <div class="row">
                     <div class="booking-form">
                         <form method="POST" action="/checkout" enctype="multipart/form-data">
+                            <h3 style="color: ivory;">{{err}}</h3>
                             <div class="form-group">
                                 <div class="form-checkbox">
                                     <label for="roundtrip">
@@ -45,7 +46,7 @@
                                         <input type="radio" checked id="roundtrip" name="room-type" value="Casual">
                                         <span></span>Casual
                                     </label>
-                                    
+
 
                                 </div>
                             </div>
@@ -55,7 +56,7 @@
                                         <span class="form-label">Hotel Name</span>
                                         <input class="form-control" value="{{room.hotel}}" name="hotel" type="text"
                                             placeholder="City or Hotel">
-                                        <input class="form-control" value="{{room._id}}" name="roomid" type="hidden"
+                                        <input class="form-control" value="{{room.roomid}}" name="roomid" type="hidden"
                                             placeholder="City or Hotel">
                                     </div>
                                 </div>
@@ -65,13 +66,20 @@
                                 <div class="col-md-3">
                                     <div class="form-group">
                                         <span class="form-label">CHECK IN</span>
-                                        <input class="form-control" name="checkin" type="date" required>
+                                        <input class="form-control" value="{{room.checkin}}" name="checkin" type="date"
+                                            required>
+                                    </div>
+                                    <div class="form-group">
+                                        <span class="form-label">Mobile</span>
+                                        <input class="form-control" name="mobile" value="{{room.mobile}}" type="tel"
+                                            required>
                                     </div>
                                 </div>
                                 <div class="col-md-3">
                                     <div class="form-group">
                                         <span class="form-label">CHECK OUT</span>
-                                        <input class="form-control" name="checkout" type="date" required>
+                                        <input class="form-control" value="{{room.checkout}}" name="checkout"
+                                            type="date" required>
                                     </div>
                                 </div>
                                 <div class="col-md-2">

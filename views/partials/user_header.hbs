@@ -34,6 +34,7 @@
                     <a href="/profile" class="nav-link userheader">
                         {{#if googleuser}}
                         <img class="homephoto" src=" {{googleuser.picture}}" alt={{googleuser.name}} />
+                        <span class="homephotoname">{{googleuser.name}}</span>
                         {{else}}
                         <span>{{googleuser.name}}</span>
                         {{/if}}

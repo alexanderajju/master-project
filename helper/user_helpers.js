@@ -15,6 +15,7 @@ const ObjectId = require("mongodb").ObjectId;
 const Razorpay = require("razorpay");
 const schedule = require("node-schedule");
 const { resolve } = require("path");
+const { reject } = require("promise");
 
 var instance = new Razorpay({
   key_id: "rzp_test_2wER6mnpGYCPCq",
@@ -158,7 +159,7 @@ module.exports = {
     });
   },
   userbooking: (data, user) => {
-    console.log(data);
+    console.log(user);
     data.checkin = new Date(data.checkin);
     data.checkout = new Date(data.checkout);
     data.roomid = ObjectId(data.roomid);
@@ -310,6 +311,7 @@ module.exports = {
           },
         ])
         .toArray();
+      console.log(total);
       if (total.length != 0) {
         resolve(total[0].total);
       } else {
@@ -344,7 +346,6 @@ module.exports = {
       // console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>rooms", rooms);
       roomlength = rooms.length;
 
-      delete data.Destination;
       delete data.roomcount;
       if (rooms.length === 0) {
         resolve({
@@ -690,8 +691,17 @@ module.exports = {
               roomnumber: "$room.roomnumber",
             },
           },
+          {
+            $lookup: {
+              from: reviewCollection,
+              localField: "products.roomid",
+              foreignField: "roomid",
+              as: "user",
+            },
+          },
         ])
         .toArray();
+      console.log(room);
       resolve(room);
     });
   },
@@ -699,6 +709,7 @@ module.exports = {
     return new Promise((resolve, reject) => {
       data.rate = parseInt(data.rate);
       data.userid = ObjectId(id);
+      data.roomid = ObjectId(data.roomid);
 
       db.get()
         .collection(reviewCollection)
@@ -706,6 +717,48 @@ module.exports = {
         .then((response) => {
           resolve();
         });
+    });
+  },
+  getUserreview: (data, id) => {
+    return new Promise(async (resolve, reject) => {
+      let review = await db
+        .get()
+        .collection(reviewCollection)
+        .aggregate([
+          {
+            $match: {
+              userid: ObjectId(id),
+              roomid: ObjectId(data.roomid),
+              hotel: data.hotel,
+              destination: data.destination,
+              roomnumber: data.roomnumber,
+            },
+          },
+        ])
+        .toArray();
+      resolve(review);
+    });
+  },
+  editReview: (data, id) => {
+    return new Promise((resolve, reject) => {
+      db.get()
+        .collection(reviewCollection)
+        .updateOne(
+          {
+            userid: ObjectId(id),
+            hotel: data.hotel,
+            roomnumber: data.roomnumber,
+            roomid: ObjectId(data.roomid),
+            destination: data.destination,
+          },
+          {
+            $set: {
+              rate: parseInt(data.rate),
+              comment: data.comment,
+            },
+          }
+        );
+      resolve();
     });
   },
 };

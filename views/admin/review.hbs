@@ -1,0 +1,103 @@
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.22/css/jquery.dataTables.css">
+
+<section>
+    <table id="table_id">
+
+        <thead>
+            <tr>
+                <th scope="col">Hotel</th>
+                <th scope="col">Destination</th>
+                <th scope="col">Rating</th>
+                <th scope="col">Comment</th>
+                <th scope="col">Setting</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each response}}
+            <tr>
+                <td>{{this.hotel}}</td>
+                <td>{{this.destination}}</td>
+                <td>{{this.rate}}</td>
+                <td>{{this.comment}}</td>
+
+                <td><a class="buttonclick"><i onclick="deletecomment('{{this._id}}')" class="fas  fa-trash-alt"></i></a>
+                </td>
+            </tr>
+
+            {{/each}}
+
+
+        </tbody>
+    </table>
+</section>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.js"></script>
+
+<style>
+    table {
+        border: 1px solid black;
+        border-collapse: collapse;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        table-layout: fixed;
+        color: rgb(3, 3, 3);
+        border-radius: 10px;
+        margin-top: 8rem;
+    }
+
+    tr:nth-child(even) {
+        background-color: #919191;
+    }
+
+    tr:nth-child(odd) {
+        background-color: #363636;
+    }
+
+    th,
+    td {
+        padding: 15px;
+    }
+
+    table,
+    th,
+    td {
+        border: 1px solid black;
+        border-collapse: collapse;
+        text-align: center;
+    }
+
+    .buttonclick {
+        cursor: pointer;
+    }
+</style>
+<script>
+    $(document).ready(function () {
+        $('#table_id').DataTable();
+    });
+</script>
+<script>
+
+    function deletecomment(id) {
+
+        console.log(id)
+        if (!confirm('Are you sure?')) return false;
+        $.ajax({
+            url: "/admin/deletecomment",
+            data: {
+                id
+
+            },
+            method: 'post',
+            success: (response) => {
+                if (response.status) {
+                    alert("deleted")
+                    location.href = "/admin/deletecomment"
+                } else {
+                    alert(">>>>>>")
+                }
+            }
+
+
+        })
+    }
+</script>

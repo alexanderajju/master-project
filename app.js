@@ -14,6 +14,7 @@ const back = require("express-back");
 const passport = require("passport");
 const { bookingCollection } = require("./config/collections");
 require("./passport_config");
+const handlebars = require("handlebars");
 
 var app = express();
 
@@ -37,6 +38,27 @@ let handle = hbs.create({
         console.log("called else");
         return opts.inverse(this);
       }
+    },
+    renderStars: function (rate) {
+      let result = "";
+      for (let i = 1; i <= 5; i++) {
+        let rating = rate >= i ? " rating" : "";
+        result += `<i class="fas fa-star ${rating}"></i>`;
+      }
+      return new handlebars.SafeString(result);
+    },
+    if_equals: function (val1, val2, opts) {
+      if (val1 === val2) {
+        console.log("called");
+        return opts.fn(this);
+      } else {
+        console.log("called else");
+        return opts.inverse(this);
+      }
+    },
+    setChecked: function (value, currentValue) {
+      if (value == undefined) return "";
+      return value == currentValue ? "checked" : "";
     },
   },
 });
