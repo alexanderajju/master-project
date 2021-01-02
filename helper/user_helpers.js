@@ -641,25 +641,34 @@ module.exports = {
       resolve();
     });
   },
-  issueRefund: (refundId) => {
+  usercancelorder: (query, total) => {
+    if (total.length != 0) {
+      total = total[0].totalAmount * 100;
+    } else {
+      total = 0;
+    }
     return new Promise((resolve, reject) => {
       instance.payments
-        .refund(refundId, {
-          amount: 500,
+        .refund(query.razorpayId, {
+          amount: total,
           notes: {
-            note1: "This is a test refund",
+            note1: "Refund will be made with in 4 hours",
             note2: "This is a test note",
           },
         })
         .then((data) => {
           // success
           console.log(data);
+          db.get()
+            .collection(orderCollection)
+            .removeOne({ _id: ObjectId(query.id) });
+          resolve({ notes: data.notes.note1 });
         })
         .catch((error) => {
           console.error(error);
+          resolve({ notes: error.description });
           // error
         });
-      resolve();
     });
   },
   getUserOrders: (id) => {
@@ -688,6 +697,7 @@ module.exports = {
           {
             $project: {
               products: 1,
+              razorpayid: 1,
               roomnumber: "$room.roomnumber",
             },
           },
@@ -759,6 +769,25 @@ module.exports = {
           }
         );
       resolve();
+    });
+  },
+  getordertotal: (id) => {
+    return new Promise(async (resolve, reject) => {
+      let total = db
+        .get()
+        .collection(orderCollection)
+        .aggregate([
+          {
+            $match: { _id: ObjectId(id) },
+          },
+          {
+            $project: {
+              totalAmount: 1,
+            },
+          },
+        ])
+        .toArray();
+      resolve(total);
     });
   },
 };

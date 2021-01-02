@@ -32,6 +32,8 @@ const {
   getUserOrders,
   userReview,
   editReview,
+  usercancelorder,
+  getordertotal,
 } = require("../helper/user_helpers");
 var fs = require("fs");
 
@@ -485,7 +487,14 @@ router.put("/review", verifyuser, (req, res) => {
     res.json({ status: true });
   });
 });
-router.get("/test", (req, res) => {
-  gettotal((id = "5fdc45cd32ba2f35942692f9"));
+router.post("/userordercancel", async (req, res) => {
+  console.log(req.body);
+  let total = 0;
+  total = await getordertotal(req.body.id);
+  usercancelorder(req.body, total).then((response) => {
+    console.log("resposne>>>>>>>>>>", response);
+    res.json({ status: true, notes: response.notes });
+  });
 });
+
 module.exports = router;
