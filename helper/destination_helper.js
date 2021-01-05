@@ -57,11 +57,11 @@ module.exports = {
         .collection("features")
         .aggregate([
           {
-            $match: { _id: ObjectId("5fc5cd84116d1f5390c3c202") },
+            $match: { _id: ObjectId("5ff44888dd6a68e6b520001e") },
           },
         ])
         .toArray();
-
+      console.log(features);
       features = features[0].features;
       hotel = hotel[0].features;
       if (hotel) {
