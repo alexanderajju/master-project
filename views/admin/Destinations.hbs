@@ -4,7 +4,7 @@
             <span class="heading">Explore</span>
             <span class="sub-heading">Our Beatutiful Destinations</span>
             <a href="/admin/addDestination" class="btn btn-gradient"
-                style="position: absolute; z-index: 1000; right: 10rem;top: 13rem;">add
+                style="position: absolute; z-index: 1000; right: 7rem;top: 13rem;">add
                 Destination
             </a>
         </h5>
@@ -13,7 +13,7 @@
 
             {{#each destination}}
             <div class="grid-item featured-hotels">
-                <img src="/Destination/{{this._id}}.jpg" alt="" class="hotel-image" />
+                <img src="/HOTEL/{{this._id}}.jpg" alt="" class="hotel-image" />
                 <h5 class="destination-name">{{this.Destination}}</h5>
                 <a href="/admin/destination?place={{this.Destination}}&id={{this._id}}" class="btn btn-gradient">View
                     Now
