@@ -87,7 +87,7 @@ router.post("/Adddestination", (req, res) => {
       if (err) {
         console.log(err);
       } else {
-        res.render("admin/Adddestination", { admin: true });
+        res.redirect("admin/Adddestination", { admin: true });
       }
     });
   });
