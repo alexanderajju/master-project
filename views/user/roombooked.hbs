@@ -11,6 +11,8 @@
         <form action="/edituserreview" method="POST" id="checkout-form">
 
             <div class="grid-item featured-hotels" data-aos="zoom-out">
+                <a onclick="cancelOrder('{{this._id}}','{{this.razorpayid}}')"
+                    class="sm-link deleteroom btn  rooms-btn delete cancelorder"><i class="fas fa-trash-alt"></i></a>
                 <img src="/HOTEL/{{products.roomid}}.jpg" alt="" class="hotel-image" />
                 <h5 class="destination-name">{{products.hotel}}, {{products.Destination}}</h5>
                 <h5 class="destination-name">{{products.roomtype}}: {{roomnumber}}</h5>
@@ -19,7 +21,6 @@
                 <input type="hidden" name="roomnumber" value="{{roomnumber}}">
                 <input type="hidden" name="destination" value="{{products.Destination}}">
                 <input type="hidden" id="roomid" name="roomid" value="{{products.roomid}}">
-                <a href="/userordercancel?id{{_id}}&razorpayId={{razorpayid}}">Cancel Order</a>
                 <button style="cursor: pointer;" class="btn btn-gradient">Edit Review<span class="dots"><i
                             class="fas fa-ellipsis-h "></i></span></button>
 
