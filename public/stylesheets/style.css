@@ -424,9 +424,6 @@ section {
   position: relative;
   height: 25rem;
 }
-.features {
-  flex-direction: row;
-}
 .feature_h5 {
   margin-left: 12px;
 }
@@ -638,8 +635,7 @@ section {
   }
   .features {
     display: flex;
-    flex-direction: column;
-
+    flex-direction: row;
     align-items: center;
   }
 }
@@ -649,6 +645,10 @@ section {
   }
   .homephotoname {
     display: none;
+  }
+  .features {
+    display: flex;
+    flex-direction: column !important;
   }
   .homephoto {
     border-radius: 50%;
