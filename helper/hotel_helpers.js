@@ -144,7 +144,7 @@ module.exports = {
               as: "review",
             },
           },
-        
+
           {
             $project: {
               Name: 1,
@@ -441,7 +441,7 @@ module.exports = {
           {
             $set: {
               roomnumber: body.roomnumber,
-              price: body.price,
+              price: parseInt(body.price),
               description: body.description,
               Destination: body.Destination,
               features: features,

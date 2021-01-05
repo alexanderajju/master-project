@@ -77,10 +77,10 @@ router.get("/logout", (req, res) => {
   res.redirect("/");
 });
 
-router.get("/Adddestination", (req, res) => {
+router.get("/Adddestination", verifyAdmin, (req, res) => {
   res.render("admin/addDestination", { admin: true });
 });
-router.post("/Adddestination", (req, res) => {
+router.post("/Adddestination", verifyAdmin, (req, res) => {
   addDestination(req.body).then((id) => {
     let image = req.files.image;
     image.mv("./public/HOTEL/" + id + ".jpg", (err, done) => {
@@ -92,12 +92,12 @@ router.post("/Adddestination", (req, res) => {
     });
   });
 });
-router.get("/destinations", async (req, res) => {
+router.get("/destinations", verifyAdmin, async (req, res) => {
   await getDestination().then((destination) => {
     res.render("admin/Destinations", { destination, admin: true });
   });
 });
-router.get("/destination", (req, res) => {
+router.get("/destination", verifyAdmin, (req, res) => {
   let place = req.query.place;
   let id = req.query.id;
   res.render("admin/viewhotels", { admin: true, place, id });
@@ -107,7 +107,7 @@ router.get("/addhotel", async (req, res) => {
     res.render("admin/addHotel", { admin: true, destination });
   });
 });
-router.post("/addhotel", (req, res) => {
+router.post("/addhotel", verifyAdmin, (req, res) => {
   hotelsignup(req.body).then((response) => {
     if (response.id) {
       var transporter = nodemailer.createTransport({
@@ -152,23 +152,8 @@ router.post("/addhotel", (req, res) => {
     }
   });
 });
-router.get("/addRoom", (req, res) => {
-  let roomCount = 4;
-  res.render("admin/addRoom", { roomCount });
-});
-router.post("/addRoom", (req, res) => {
-  addRoom(req.body).then((id) => {
-    let image = req.files.image;
-    image.mv("./public/HOTEL/" + id + ".jpg", (err, done) => {
-      if (err) {
-        console.log(err);
-      } else {
-        res.redirect("/");
-      }
-    });
-  });
-});
-router.get("/hotels", (req, res) => {
+
+router.get("/hotels", verifyAdmin, (req, res) => {
   viewHotel().then((hotel) => {
     console.log("view hotel called");
     res.render("admin/viewhotels", { hotel, admin: true });
@@ -188,7 +173,7 @@ router.post("/deletehotel", (req, res) => {
     }
   });
 });
-router.get("/edithotel", async (req, res) => {
+router.get("/edithotel", verifyAdmin, async (req, res) => {
   console.log(req.query.Destination);
   hotel = await getHotel(req.query.id, req.query.Destination);
   if (hotel) {
@@ -196,7 +181,7 @@ router.get("/edithotel", async (req, res) => {
     res.render("admin/edithotel", { hotel });
   }
 });
-router.post("/edithotel/:id", (req, res) => {
+router.post("/edithotel/:id", verifyAdmin, (req, res) => {
   console.log(req.body);
   let destination = [];
   destination.push(req.body.destination);
@@ -211,31 +196,31 @@ router.post("/edithotel/:id", (req, res) => {
     }
   });
 });
-router.get("/customers", async (req, res) => {
+router.get("/customers", verifyAdmin, async (req, res) => {
   let userCount = await getusers();
   console.log(userCount);
   res.render("admin/customers", { userCount, admin: true });
 });
-router.post("/deleteuser", async (req, res) => {
+router.post("/deleteuser", verifyAdmin, async (req, res) => {
   await deleteUser(req.body.id).then((response) => {
     res.json({ status: true });
   });
 });
-router.get("/orders", async (req, res) => {
+router.get("/orders", verifyAdmin, async (req, res) => {
   let orders = await Orders();
   res.render("admin/temp", { orders });
 });
-router.post("/deleteorder", async (req, res) => {
+router.post("/deleteorder", verifyAdmin, async (req, res) => {
   await deleteOrder(req.body.id).then((resposnse) => {
     res.json({ status: true, notes: resposnse.notes });
   });
 });
-router.get("/deletecomment", (req, res) => {
+router.get("/deletecomment", verifyAdmin, (req, res) => {
   getallreview().then((response) => {
     res.render("admin/review", { response });
   });
 });
-router.post("/deletecomment", (req, res) => {
+router.post("/deletecomment", verifyAdmin, (req, res) => {
   deletereview(req.body.id).then((resposnse) => {
     res.json({ status: true });
   });

@@ -138,10 +138,8 @@ router.post("/editfeatures", (req, res) => {
       features.push(req.body.features[i]);
     }
   } else if (req.body.features) {
-    
     features.push(req.body.features);
   } else {
-    
     features;
   }
   editFeatures(req.session.hotel._id, features).then((response) => {
@@ -149,7 +147,7 @@ router.post("/editfeatures", (req, res) => {
   });
 });
 router.post("/addroom", (req, res) => {
-  req.body.price = +req.body.price;
+  req.body.price = parseInt(req.body.price);
 
   addRoom(req.body, req.session.hotel).then((id) => {
     let image = req.files.image;

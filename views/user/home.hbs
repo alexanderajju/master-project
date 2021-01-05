@@ -15,7 +15,7 @@
             <form action="/search" method="POST" class="book-form">
                 <div class="input-group">
                     <label for="destination" class="input-label">Destination</label>
-                    <select name="Destination" id="Destination" class="options">
+                    <select name="Destination" required id="Destination" class="options">
                         <option value="">select</option>
                         {{#each destination}}
                         <option value="{{this.Destination}}">{{this.Destination}}</option>
@@ -24,15 +24,15 @@
                 </div>
                 <div class="input-group">
                     <label for="check-in" class="input-label">Check in</label>
-                    <input type="date" name="checkin" class="input" id="check-in" />
+                    <input type="date" required name="checkin" class="input" id="check-in" />
                 </div>
                 <div class="input-group">
                     <label for="check-out" class="input-label">Check out</label>
-                    <input type="date" name="checkout" class="input" id="check-out" />
+                    <input type="date" required name="checkout" class="input" id="check-out" />
                 </div>
                 <div class="input-group">
                     <label for="adults" class="input-label">Adults</label>
-                    <select name="count" id="adults" class="options">
+                    <select name="count" required id="adults" class="options">
                         <option value="0">0</option>
                         <option value="1">1</option>
                         <option value="2">2</option>
@@ -44,7 +44,7 @@
 
                 <div class="input-group">
                     <label for="children" class="input-label">Children</label>
-                    <select name="count" id="children" class="options">
+                    <select name="count" required id="children" class="options">
                         <option value="0">0</option>
                         <option value="1">1</option>
                         <option value="2">2</option>
@@ -104,25 +104,26 @@
                 <div class="traveler-wrap" data-aos="fade-right" data-aos-duration="3000">
                     <img src="images/traveler.png" alt="" />
                 </div>
-                <form action="" class="form contact-form" data-aos="fade-left">
+                <form action="" id="submit-form" class="form contact-form" data-aos="fade-left">
                     <div class="input-group-wrap">
                         <div class="input-group">
-                            <input type="text" placeholder="Name" class="input" />
+                            <input type="text" placeholder="Name" name="name" id="name" class="input" />
                             <span class="bar"></span>
                         </div>
 
                         <div class="input-group">
-                            <input type="email" placeholder="E-mail" class="input" />
+                            <input type="email" placeholder="E-mail" name="email" id="email" class="input" />
                             <span class="bar"></span>
                         </div>
                     </div>
 
                     <div class="input-group">
-                        <input type="email" placeholder="Subject" class="input" />
+                        <input type="text" placeholder="Subject" name="subject" id="subject" class="input" />
                         <span class="bar"></span>
                     </div>
                     <div class="input-group">
-                        <textarea cols="30" rows="8" placeholder="Type...." class="input"></textarea>
+                        <textarea cols="30" rows="8" name="description" id="description" placeholder="Type...."
+                            class="input"></textarea>
                         <span class="bar"></span>
                     </div>
                     <button class="btn form-btn btn-purple" type="submit">

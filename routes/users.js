@@ -118,20 +118,7 @@ router.post("/login", (req, res) => {
     }
   });
 });
-router.get("/signup", (req, res) => {
-  res.render("user/signup");
-});
-router.post("/signup", (req, res) => {
-  doSignUp(req.body).then((response) => {
-    if (response.status) {
-      req.session.user = response;
-      user = req.session.user;
 
-      req.session.loggedIn = true;
-      res.render("user/home", { user });
-    }
-  });
-});
 router.get("/logout", (req, res) => {
   if (req.session) {
     req.session.destroy();

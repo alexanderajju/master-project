@@ -7,6 +7,7 @@
 
         <div class="grid">
 
+            {{#if hotels}}
             {{#each hotels}}
 
             <div class="grid-item featured-hotels">
@@ -18,12 +19,12 @@
 
                 <div>
                     {{#if_equals count 0}}
-                        <i class="fas fa-star rating"></i>
-                        <i class="fas fa-star rating"></i>
-                        <i class="fas fa-star rating"></i>
-                        <i class="fas fa-star rating"></i>
-                        <i class="fas fa-star-half rating"></i>
-                 
+                    <i class="fas fa-star rating"></i>
+                    <i class="fas fa-star rating"></i>
+                    <i class="fas fa-star rating"></i>
+                    <i class="fas fa-star rating"></i>
+                    <i class="fas fa-star-half rating"></i>
+
                     {{else}}
                     {{#renderStars rating}}
 
@@ -39,6 +40,9 @@
 
             {{/each}}
 
+            {{else}}
+            <h3>Currently no Hotels available for now</h3>
+            {{/if}}
 
 
 
