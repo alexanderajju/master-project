@@ -11,6 +11,7 @@ const Promise = require("promise");
 const ObjectId = require("mongodb").ObjectId;
 const Razorpay = require("razorpay");
 const { response } = require("../app");
+const { resolve, reject } = require("promise");
 
 var instance = new Razorpay({
   key_id: "rzp_test_2wER6mnpGYCPCq",
@@ -217,6 +218,49 @@ module.exports = {
         .then((response) => {
           resolve();
         });
+    });
+  },
+  Roomsavailable: () => {
+    return new Promise(async (resolve, reject) => {
+      let Rooms = await db
+        .get()
+        .collection(roomCollection)
+        .aggregate([{ $match: { booking: false } }])
+        .toArray();
+      resolve(Rooms.length);
+    });
+  },
+  getTotalAmount: () => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let total = await db
+          .get()
+          .collection(orderCollection)
+          .aggregate([
+            {
+              $match: {
+                status: "placed",
+              },
+            },
+            {
+              $project: {
+                totalAmount: 1,
+              },
+            },
+            {
+              $group: {
+                _id: null,
+                total: { $sum: "$totalAmount" },
+              },
+            },
+          ])
+          .toArray();
+        console.log(total[0].total);
+        console.log(Number(total[0].total.toFixed(2)).toLocaleString());
+        resolve(Number(total[0].total.toFixed(2)).toLocaleString());
+      } catch (err) {
+        console.log(err);
+      }
     });
   },
 };

@@ -21,6 +21,8 @@ const {
   deleteOrder,
   getallreview,
   deletereview,
+  Roomsavailable,
+  getTotalAmount,
 } = require("../helper/admin_helpers");
 let fs = require("fs");
 var nodemailer = require("nodemailer");
@@ -40,6 +42,10 @@ router.get("/", verifyAdmin, async (req, res, next) => {
   let admin = req.session.admin;
   let userCount = await getusers();
   let totalbooking = await TotalBooking();
+  let availableRooms = await Roomsavailable();
+  let getareview = await getallreview();
+  let totalAmount = await  getTotalAmount();
+  console.log(getareview.length);
   viewHotel().then((response) => {
     let hotelcount = Object.keys(response).length;
 
@@ -48,6 +54,9 @@ router.get("/", verifyAdmin, async (req, res, next) => {
       hotelcount,
       userCount: Object.keys(userCount).length,
       totalbooking: totalbooking,
+      availableRooms: availableRooms,
+      getareview: getareview.length,
+      totalAmount:totalAmount
     });
   });
 });
@@ -225,4 +234,5 @@ router.post("/deletecomment", verifyAdmin, (req, res) => {
     res.json({ status: true });
   });
 });
+
 module.exports = router;

@@ -37,7 +37,7 @@
             <div class="image-wrap">
                 <img class="room-image admin-room-image" src="/images/room_1.jpg" alt="" />
 
-                <a href="admin/customers">
+                <a href="/admin/customers">
                     <h5 class="room-name ">Total Customers</h5>
                 </a>
                 <span class="booking_details">{{userCount}}
@@ -50,7 +50,7 @@
             <div class="image-wrap">
                 <img class="room-image admin-room-image" src="/images/room_1.jpg" alt="" />
                 <h5 class="room-name">Rooms available</h5>
-                <span class="booking_details">10
+                <span class="booking_details">{{availableRooms}}
                 </span>
 
             </div>
@@ -62,8 +62,11 @@
         <div class="grid-item featured-rooms">
             <div class="image-wrap">
                 <img class="room-image admin-room-image" src="/images/room_1.jpg" alt="" />
-                <h5 class="room-name">Today Income</h5>
-                <span class="booking_details">10
+
+                <a href="/admin/orders">
+                    <h5 class="room-name">Total Income</h5>
+                </a>
+                <span class="booking_details">{{totalAmount}}
                 </span>
 
             </div>
@@ -72,33 +75,17 @@
         <div class="grid-item featured-rooms">
             <div class="image-wrap">
                 <img class="room-image admin-room-image" src="/images/room_1.jpg" alt="" />
-                <h5 class="room-name">Review</h5>
-                <span class="booking_details">10
+                <a href="/admin/deletecomment">
+                    <h5 class="room-name">Review</h5>
+                </a>
+
+                <span class="booking_details">{{getareview}}
                 </span>
 
             </div>
 
         </div>
-        <div class="grid-item featured-rooms">
-            <div class="image-wrap">
-                <img class="room-image admin-room-image" src="/images/room_1.jpg" alt="" />
-                <h5 class="room-name">Total Income</h5>
-                <span class="booking_details">10
-                </span>
 
-            </div>
-
-        </div>
-        <div class="grid-item featured-rooms">
-            <div class="image-wrap">
-                <img class="room-image admin-room-image" src="/images/room_1.jpg" alt="" />
-                <h5 class="room-name">Total Income</h5>
-                <span class="booking_details">10
-                </span>
-
-            </div>
-
-        </div>
     </div>
 
 

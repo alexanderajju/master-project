@@ -8,6 +8,7 @@ const {
   getRajpalaceReview,
   getHotelReview,
 } = require("../helper/hotel_helpers");
+const { getTotalAmount } = require("../helper/admin_helpers");
 const {
   doSignUp,
   doLogin,
