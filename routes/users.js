@@ -273,6 +273,7 @@ router.get("/favico.ico", verifyuser, (req, res) => {
 });
 router.get("/checkout", verifyuser, async (req, res) => {
   room = await checkoutroom(req.query.id);
+  console.log("room>>>>>>>>>>>>>>>>>>>>>>>>>>>", room);
   let googleuser = req.session.googleuser;
   res.render("user/checkout", { room, googleuser });
 });
@@ -390,9 +391,10 @@ router.post("/searchcheckout", verifyuser, (req, res) => {
     }
   });
 });
-router.get("/place_order", verifyuser, (req, res) => {
+router.get("/place_order", verifyuser, async (req, res) => {
   let googleuser = req.session.googleuser;
-  res.render("user/placeOrder", { googleuser });
+  let total = await gettotal(googleuser._id);
+  res.render("user/placeOrder", { googleuser, total });
 });
 
 router.post("/place_order", verifyuser, async (req, res) => {
